@@ -4,7 +4,7 @@ web:
 	rm -rf web
 	mkdir web
 	make -C doc html pdf
-	cp doc/*.html doc/*.pdf web/
+	cp doc/*.html doc/*.pdf doc/*.png web/
 	cp web/clx-truetype.html web/index.html
 
 pages: web
