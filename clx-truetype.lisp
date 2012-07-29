@@ -10,10 +10,10 @@
    (strikethrough :type boolean :initarg :strikethrough :initform nil :accessor font-strikethrough :documentation "Draw strike through text string.")
    (overline :type boolean :initarg :overline :initform nil :accessor font-overline :documentation "Draw line over text string.")
    (background :initarg :background :initform nil :accessor font-background :documentation "Background color.")
-   (foreground :initarg :foregroung :initform nil :accessor font-foregroung :documentation "Foreground color.")
+   (foreground :initarg :foreground :initform nil :accessor font-foreground :documentation "Foreground color.")
    (overwrite-gcontext :type boolean :initarg overwrite-gcontext :initform nil 
                        :accessor font-overwrite-gcontext :documentation "Use font values for background and foreground colors.")
-   (antialiased :type boolean :initarg antialiased :initform t :accessor font-antialiased :documentation "Antialias text string."))
+   (antialias :type boolean :initarg antialias :initform t :accessor font-antialias :documentation "Antialias text string."))
   (:documentation "Class for representing font information."))
 
 (defun check-valid-font-families (family subfamily)
@@ -32,6 +32,46 @@
 (defmethod (setf font-subfamily) :before
   (subfamily (instance font))
   (check-valid-font-families (font-family instance) subfamily))
+
+(defgeneric font-equal (font1 font2)
+  (:documentation "Returns t if two font objects are equal, else returns nil.")
+  (:method ((font1 font) (font2 font))
+    (and (string-equal (font-family font1)
+                       (font-family font2))
+         (string-equal (font-subfamily font1)
+                       (font-subfamily font2))
+         (= (font-size font1) (font-size font2))
+         (eql (font-underline font1) (font-underline font2))
+         (eql (font-strikethrough font1) (font-strikethrough font2))
+         (eql (font-overline font1) (font-overline font2))
+         (equal (font-background font1) (font-background font2))
+         (equal (font-foreground font1) (font-foreground font2))
+         (eql (font-overwrite-gcontext font1) (font-overwrite-gcontext font2))
+         (eql (font-antialias font1) (font-antialias font2)))))
+
+(defmethod print-object ((instance font) stream)
+  "Pretty printing font object"
+  (with-slots (family subfamily underline strikethrough
+                   overline background foreground overwrite-gcontext
+                   antialias)
+      instance
+    (if *print-readably*
+        (format stream
+                "#.(~S '~S ~S ~S ~S ~S ~S ~S ~S ~S ~S ~S ~S ~S ~S ~S ~S ~S ~S ~S)"
+                'cl:make-instance 'font
+                :family family :subfamily subfamily :underline underline 
+                :strikethrough strikethrough
+                :overline overline :background background :foreground foreground 
+                :overwrite-gcontext overwrite-gcontext
+                :antialias antialias)
+        (format stream
+                "#<'~S ~S ~S ~S ~S ~S ~S ~S ~S ~S ~S ~S ~S ~S ~S ~S ~S ~S ~S>"
+                'font
+                :family family :subfamily subfamily :underline underline 
+                :strikethrough strikethrough
+                :overline overline :background background :foreground foreground 
+                :overwrite-gcontext overwrite-gcontext
+                :antialias antialias))))
 
 ;;; ZPB-TTF font objects cache
 (defun get-font-pathname (font)
@@ -211,7 +251,7 @@
 
 (defun make-state (font)
   "Wrapper around antialising and not antialiasing renderers."
-  (if (font-antialiased font)
+  (if (font-antialias font)
       (aa:make-state)
       (aa-bin:make-state)))
 
@@ -242,13 +282,13 @@
 
 (defun update-state (font state paths)
   "Wrapper around antialising and not antialiasing renderers."
-  (if (font-antialiased font)
+  (if (font-antialias font)
       (vectors:update-state state paths)
       (aa-bin/update-state state paths)))
 
 (defun cells-sweep (font state function &optional function-span)
   "Wrapper around antialising and not antialiasig renderers."
-  (if (font-antialiased font)
+  (if (font-antialias font)
       (aa:cells-sweep state function function-span)
       (aa-bin:cells-sweep state function function-span)))
 

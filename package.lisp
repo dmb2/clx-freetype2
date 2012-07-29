@@ -37,7 +37,8 @@
    :text-line-height
    :font-line-gap
    :baseline-to-baseline
-   :font-antialiased
+   :font-antialias
    :font-lines-height
-   :cache-fonts)
+   :cache-fonts
+   :font-equal)
   (:documentation "Package contains API for TrueType text rendering using CLX, XRender. Glyphs information is obtained by ZPB-TTF. Font rasterization is made by CL-VECTORS."))

@@ -27,7 +27,7 @@
 		   :foreground black
 		   :background white))
          (font (make-instance 'font :family "Times New Roman" :subfamily "Bold Italic"
-                              :size 36 :antialiased t)))
+                              :size 36 :antialias t)))
     (unwind-protect
          (progn
            (xlib:map-window window)
@@ -41,7 +41,7 @@
                         (when (= 0 (random 2))
                           (rotatef (xlib:gcontext-foreground grackon) (xlib:gcontext-background grackon)))
                         (draw-text window grackon font "Съешь же ещё этих мягких французских булок, да выпей чаю." 100 (+ 100 (baseline-to-baseline window font)))
-                        (setf (font-antialiased font) (= 0 (random 2)))
+                        (setf (font-antialias font) (= 0 (random 2)))
                         (if (= 0 (random 2))
                             (setf (font-subfamily font) "Regular")
                             (setf (font-subfamily font) "Italic"))
