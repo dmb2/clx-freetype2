@@ -1,6 +1,7 @@
 \input texinfo   @c -*-texinfo-*-
 @c %**start of header
 @setfilename clx-truetype.info
+@documentencoding UTF-8
 @settitle CLX-TRUETYPE
 @c %**end of header
 
