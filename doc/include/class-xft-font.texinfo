@@ -1,0 +1,41 @@
+@tindex font
+@anchor{Class font}
+@deftp {Class} {font}
+Class precedence list: @code{@lw{font}, @lw{standard-object}, @lw{t}}
+
+Slots:
+@itemize
+@item @code{family} --- initarg: @code{@w{:family}}; reader: @code{@w{clx-truetype:font-family}}; writer: @code{@w{(setf clx-truetype:font-family)}}
+
+Font family.
+@item @code{subfamily} --- initarg: @code{@w{:subfamily}}; reader: @code{@w{clx-truetype:font-subfamily}}; writer: @code{@w{(setf clx-truetype:font-subfamily)}}
+
+Font subfamily. For e.g. regular, italic, bold, bold italib.
+@item @code{size} --- initarg: @code{@w{:size}}; reader: @code{@w{clx-truetype:font-size}}; writer: @code{@w{(setf clx-truetype:font-size)}}
+
+Font size in points.
+@item @code{underline} --- initarg: @code{@w{:underline}}; reader: @code{@w{clx-truetype:font-underline}}; writer: @code{@w{(setf clx-truetype:font-underline)}}
+
+Draw line under text string.
+@item @code{strikethrough} --- initarg: @code{@w{:strikethrough}}; reader: @code{@w{clx-truetype:font-strikethrough}}; writer: @code{@w{(setf clx-truetype:font-strikethrough)}}
+
+Draw strike through text string.
+@item @code{overline} --- initarg: @code{@w{:overline}}; reader: @code{@w{clx-truetype:font-overline}}; writer: @code{@w{(setf clx-truetype:font-overline)}}
+
+Draw line over text string.
+@item @code{background} --- initarg: @code{@w{:background}}; reader: @code{@w{clx-truetype:font-background}}; writer: @code{@w{(setf clx-truetype:font-background)}}
+
+Background color.
+@item @code{foreground} --- initarg: @code{@w{:foregroung}}; reader: @code{@w{clx-truetype:font-foregroung}}; writer: @code{@w{(setf clx-truetype:font-foregroung)}}
+
+Foreground color.
+@item @code{overwrite-gcontext} --- initarg: @code{@w{clx-truetype::overwrite-gcontext}}; reader: @code{@w{clx-truetype:font-overwrite-gcontext}}; writer: @code{@w{(setf clx-truetype:font-overwrite-gcontext)}}
+
+Use font values for background and foreground colors.
+@item @code{antialiased} --- initarg: @code{@w{clx-truetype::antialiased}}; reader: @code{@w{clx-truetype:font-antialiased}}; writer: @code{@w{(setf clx-truetype:font-antialiased)}}
+
+Antialias text string.
+@end itemize
+
+Class for representing font information.
+@end deftp
