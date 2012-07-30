@@ -36,6 +36,7 @@
 (defgeneric font-equal (font1 font2)
   (:documentation "Returns t if two font objects are equal, else returns nil.")
   (:method ((font1 font) (font2 font))
+    
     (and (string-equal (font-family font1)
                        (font-family font2))
          (string-equal (font-subfamily font1)
@@ -133,28 +134,28 @@
           (* pixel-size-y (/ units/em)))))))
 
 (defun font-ascent (drawable font)
-  "Returns ascent of @var{font}. @{drawable} must be window, pixmap or screen."
+  "Returns ascent of @var{font}. @var{drawable} must be window, pixmap or screen."
   (with-font-loader (loader font)
     (ceiling (* (font-units->pixels-y drawable font) (zpb-ttf:ascender loader)))))
 
 (defun font-descent (drawable font)
-  "Returns descent of @var{font}. @{drawable} must be window, pixmap or screen."
+  "Returns descent of @var{font}. @var{drawable} must be window, pixmap or screen."
   (with-font-loader (loader font)
     (floor (* (font-units->pixels-y drawable font) (zpb-ttf:descender loader)))))
 
 (defun font-line-gap (drawable font)
-  "Returns line gap of @var{font}. @{drawable} must be window, pixmap or screen."
+  "Returns line gap of @var{font}. @var{drawable} must be window, pixmap or screen."
   (with-font-loader (loader font)
     (ceiling (* (font-units->pixels-y drawable font) (zpb-ttf:line-gap loader)))))
 
 ;;; baseline-to-baseline = ascent - descent + line gap
 (defun baseline-to-baseline (drawable font)
-  "Returns distance between baselines of @var{font}. @{drawable} must be window, pixmap or screen. ascent - descent + line gap"
+  "Returns distance between baselines of @var{font}. @var{drawable} must be window, pixmap or screen. ascent - descent + line gap"
   (+ (font-ascent drawable font) (- (font-descent drawable font))
      (font-line-gap drawable font)))
 
 (defun text-bounding-box (drawable font string)
-  "Returns text bounding box. @{drawable} must be window, pixmap or screen. Text bounding box is only for contours. Bounding box for space (#x20) is zero."
+  "Returns text bounding box. @var{drawable} must be window, pixmap or screen. Text bounding box is only for contours. Bounding box for space (#x20) is zero."
   (with-font-loader (loader font)
     (let* ((bbox
              (zpb-ttf:string-bounding-box string loader))
@@ -181,12 +182,12 @@
                           units->pixels-y))))))
 
 (defun text-width (drawable font string)
-  "Returns width of text bounding box. @{drawable} must be window, pixmap or screen."
+  "Returns width of text bounding box. @var{drawable} must be window, pixmap or screen."
   (let ((bbox (text-bounding-box drawable font string)))
     (- (xmax bbox) (xmin bbox))))
 
 (defun text-height (drawable font string)
-  "Returns height of text bounding box. @{drawable} must be window, pixmap or screen."
+  "Returns height of text bounding box. @var{drawable} must be window, pixmap or screen."
   (let ((bbox (text-bounding-box drawable font string)))
     (- (ymax bbox) (ymin bbox))))
 
@@ -468,7 +469,8 @@ position before rendering), horizontal and vertical advances.
                         :drawable drawable
                         :depth (xlib:drawable-depth drawable)
                         :width 1 :height 1)))
-             :format (xlib:find-window-picture-format drawable)))))
+             :format (xlib:find-window-picture-format drawable)
+             :repeat :on))))
 
 (defun display-alpha-picture-format (display)
   (or (getf (xlib:display-plist display) :ttf-alpha-format)
@@ -496,8 +498,8 @@ If @var{gcontext} has background color, text bounding box will be filled with it
            (alpha-picture
              (progn
                (xlib:put-image alpha-pixmap alpha-gc image :x 0 :y 0)
-               (xlib:render-create-picture alpha-pixmap :format
-                                           (display-alpha-picture-format display))))
+               (xlib:render-create-picture alpha-pixmap
+                                           :format (display-alpha-picture-format display))))
            (source-picture (get-drawable-pen-picture drawable))
            (destination-picture (get-drawable-picture drawable)))
       (update-foreground drawable gcontext font)
@@ -527,8 +529,9 @@ If @var{gcontext} has background color, text line bounding box will be filled wi
            (alpha-picture
              (progn
                (xlib:put-image alpha-pixmap alpha-gc image :x 0 :y 0)
-               (xlib:render-create-picture alpha-pixmap :format
-                                           (display-alpha-picture-format display))))
+               (xlib:render-create-picture alpha-pixmap 
+                                           :format (display-alpha-picture-format display)
+                                           :repeat t)))
            (source-picture (get-drawable-pen-picture drawable))
            (destination-picture (get-drawable-picture drawable)))
       (update-foreground drawable gcontext font)

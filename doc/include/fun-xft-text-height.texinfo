@@ -1,5 +1,5 @@
 @findex text-height
 @anchor{Function text-height}
 @deffn {Function} {text-height} drawable font string
-Returns height of text bounding box. @@@{drawable@} must be window, pixmap or screen.
+Returns height of text bounding box. @var{drawable} must be window, pixmap or screen.
 @end deffn

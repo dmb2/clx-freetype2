@@ -8,7 +8,7 @@
 
 ;;(pushnew (xlib:font-path *display*) *font-dirs*)
 (defun cache-font-file (pathname)
-  "Caches font file into hashmap."
+  "Caches font file."
   (ignore-errors  
    (zpb-ttf:with-font-loader (font pathname)
      (multiple-value-bind (hash-table exists-p)
@@ -29,7 +29,7 @@
                        (merge-pathnames ".fonts/" (user-homedir-pathname)))))
 
 (defun cache-fonts ()
-  "Caches fonts from *font-dirs* directories."
+  "Caches fonts from @refvar{*font-dirs*} directories."
   (clrhash *font-cache*)
   (dolist (font-dir *font-dirs*)
     (fad:walk-directory font-dir #'cache-font-file :if-does-not-exist :ignore
@@ -45,7 +45,7 @@
     (nreverse result)))
 
 (defun get-font-subfamilies (font-family)
-  "Returns font subfamilies for current. For e.g. regular, italic, bold, etc."
+  "Returns font subfamilies for current @var{font-family}. For e.g. regular, italic, bold, etc."
   (let ((result (list)))
     (maphash (lambda (family value)
                (declare (ignorable family))

@@ -8,10 +8,11 @@
 
 (in-package :clx-truetype-test)
 
-(defvar *display* (xlib:open-default-display))
+(defparameter *display* (xlib:open-default-display))
+;;(defparameter *display* (xlib:open-default-display "192.168.1.101:0.0"))
 
-(defvar *screen* (xlib:display-default-screen *display*))
-(defvar *root* (xlib:screen-root *screen*))
+(defparameter *screen* (xlib:display-default-screen *display*))
+(defparameter *root* (xlib:screen-root *screen*))
 
 (defun show-window ()
   (let* ((black (xlib:screen-black-pixel *screen*))
@@ -46,7 +47,8 @@
                             (setf (font-subfamily font) "Regular")
                             (setf (font-subfamily font) "Italic"))
                         (draw-text window grackon font "Жебракують філософи при ґанку церкви в Гадячі, ще й шатро їхнє п’яне знаємо." 100 (+ 100 (* 2 (baseline-to-baseline window font))))
-                        (draw-text window grackon font "Press space to exit. Нажмите пробел для выхода." 100 (+ 100 (* 3 (baseline-to-baseline window font)))))
+                        (draw-text window grackon font "Press space to exit. Нажмите пробел для выхода." 100 (+ 100 (* 3 (baseline-to-baseline window font))))
+                        nil)
              (:button-press () t)
              (:key-press (code state) (char= #\Space (xlib:keycode->character *display* code state)))))
       (progn

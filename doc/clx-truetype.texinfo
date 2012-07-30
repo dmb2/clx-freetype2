@@ -181,6 +181,7 @@ Result is
 @include include/fun-xft-get-font-subfamilies.texinfo
 
 @include include/class-xft-font.texinfo
+@include include/fun-xft-font-equal.texinfo
 @include include/fun-xft-screen-default-dpi.texinfo
 @include include/fun-xft-screen-dpi.texinfo
 @include include/fun-xft-setf-screen-dpi.texinfo
