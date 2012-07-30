@@ -1,7 +1,7 @@
 <html lang="en">
 <head>
 <title>CLX-TRUETYPE</title>
-<meta http-equiv="Content-Type" content="text/html">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta name="description" content="CLX-TRUETYPE">
 <meta name="generator" content="makeinfo 4.13">
 <link title="Top" rel="top" href="#Top">
@@ -229,14 +229,14 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
 
 <div class="defun">
 &mdash; Function: <b>cache-fonts</b><var><a name="index-cache_002dfonts-5"></a></var><br>
-<blockquote><p>Caches fonts from *font-dirs* directories. 
+<blockquote><p>Caches fonts from <a href="#Variable-_002afont_002ddirs_002a"><code>*font-dirs*</code></a> directories. 
 </p></blockquote></div>
 
    <p><a name="index-cache_002dfont_002dfile-6"></a><a name="Function-cache_002dfont_002dfile"></a>
 
 <div class="defun">
 &mdash; Function: <b>cache-font-file</b><var> pathname<a name="index-cache_002dfont_002dfile-7"></a></var><br>
-<blockquote><p>Caches font file into hashmap. 
+<blockquote><p>Caches font file. 
 </p></blockquote></div>
 
    <p><a name="index-get_002dfont_002dfamilies-8"></a><a name="Function-get_002dfont_002dfamilies"></a>
@@ -250,7 +250,7 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
 
 <div class="defun">
 &mdash; Function: <b>get-font-subfamilies</b><var> font-family<a name="index-get_002dfont_002dsubfamilies-11"></a></var><br>
-<blockquote><p>Returns font subfamilies for current. For e.g. regular, italic, bold, etc. 
+<blockquote><p>Returns font subfamilies for current <var>font-family</var>. For e.g. regular, italic, bold, etc. 
 </p></blockquote></div>
 
    <p><a name="index-font-12"></a><a name="Class-font"></a>
@@ -282,13 +282,13 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
 <li><code>background</code> &mdash; initarg: <code>:background<!-- /@w --></code>; reader: <code>clx-truetype:font-background<!-- /@w --></code>; writer: <code>(setf&nbsp;clx-truetype:font-background)<!-- /@w --></code>
 
           <p>Background color. 
-<li><code>foreground</code> &mdash; initarg: <code>:foregroung<!-- /@w --></code>; reader: <code>clx-truetype:font-foregroung<!-- /@w --></code>; writer: <code>(setf&nbsp;clx-truetype:font-foregroung)<!-- /@w --></code>
+<li><code>foreground</code> &mdash; initarg: <code>:foreground<!-- /@w --></code>; reader: <code>clx-truetype::font-foreground<!-- /@w --></code>; writer: <code>(setf&nbsp;clx-truetype::font-foreground)<!-- /@w --></code>
 
           <p>Foreground color. 
 <li><code>overwrite-gcontext</code> &mdash; initarg: <code>clx-truetype::overwrite-gcontext<!-- /@w --></code>; reader: <code>clx-truetype:font-overwrite-gcontext<!-- /@w --></code>; writer: <code>(setf&nbsp;clx-truetype:font-overwrite-gcontext)<!-- /@w --></code>
 
           <p>Use font values for background and foreground colors. 
-<li><code>antialiased</code> &mdash; initarg: <code>clx-truetype::antialiased<!-- /@w --></code>; reader: <code>clx-truetype:font-antialiased<!-- /@w --></code>; writer: <code>(setf&nbsp;clx-truetype:font-antialiased)<!-- /@w --></code>
+<li><code>antialias</code> &mdash; initarg: <code>clx-truetype::antialias<!-- /@w --></code>; reader: <code>clx-truetype:font-antialias<!-- /@w --></code>; writer: <code>(setf&nbsp;clx-truetype:font-antialias)<!-- /@w --></code>
 
           <p>Antialias text string. 
 </ul>
@@ -296,145 +296,152 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
         <p>Class for representing font information. 
 </p></blockquote></div>
 
-   <p><a name="index-screen_002ddefault_002ddpi-14"></a><a name="Function-screen_002ddefault_002ddpi"></a>
+   <p><a name="index-font_002dequal-14"></a><a name="Generic_002dFunction-font_002dequal"></a>
 
 <div class="defun">
-&mdash; Function: <b>screen-default-dpi</b><var> screen<a name="index-screen_002ddefault_002ddpi-15"></a></var><br>
-<blockquote><p>Returns default dpi for @var{screen}. pixel width <code>*</code> 25.4/millimeters width
+&mdash; Generic Function: <b>font-equal</b><var> font1 font2<a name="index-font_002dequal-15"></a></var><br>
+<blockquote><p>Returns t if two font objects are equal, else returns nil. 
 </p></blockquote></div>
 
-   <p><a name="index-screen_002ddpi-16"></a><a name="Function-screen_002ddpi"></a>
+   <p><a name="index-screen_002ddefault_002ddpi-16"></a><a name="Function-screen_002ddefault_002ddpi"></a>
 
 <div class="defun">
-&mdash; Function: <b>screen-dpi</b><var> screen<a name="index-screen_002ddpi-17"></a></var><br>
-<blockquote><p>Returns current dpi for @var{screen}. 
+&mdash; Function: <b>screen-default-dpi</b><var> screen<a name="index-screen_002ddefault_002ddpi-17"></a></var><br>
+<blockquote><p>Returns default dpi for <var>screen</var>. pixel width <code>*</code> 25.4/millimeters width
 </p></blockquote></div>
 
-   <p><a name="index-g_t_0040setf_007bscreen_002ddpi_007d-18"></a><a name="Function-_0028setf-screen_002ddpi_0029"></a>
+   <p><a name="index-screen_002ddpi-18"></a><a name="Function-screen_002ddpi"></a>
 
 <div class="defun">
-&mdash; Function: <b>(setf screen-dpi)</b><var> value screen<a name="index-g_t_0040setf_007bscreen_002ddpi_007d-19"></a></var><br>
-<blockquote><p>Sets current dpi for @var{screen}. 
+&mdash; Function: <b>screen-dpi</b><var> screen<a name="index-screen_002ddpi-19"></a></var><br>
+<blockquote><p>Returns current dpi for <var>screen</var>. 
 </p></blockquote></div>
 
-   <p><a name="index-font_002dascent-20"></a><a name="Function-font_002dascent"></a>
+   <p><a name="index-g_t_0040setf_007bscreen_002ddpi_007d-20"></a><a name="Function-_0028setf-screen_002ddpi_0029"></a>
 
 <div class="defun">
-&mdash; Function: <b>font-ascent</b><var> drawable font<a name="index-font_002dascent-21"></a></var><br>
-<blockquote><p>Returns ascent of @var{font}. @{drawable} must be window, pixmap or screen. 
+&mdash; Function: <b>(setf screen-dpi)</b><var> value screen<a name="index-g_t_0040setf_007bscreen_002ddpi_007d-21"></a></var><br>
+<blockquote><p>Sets current dpi for <var>screen</var>. 
 </p></blockquote></div>
 
-   <p><a name="index-font_002ddescent-22"></a><a name="Function-font_002ddescent"></a>
+   <p><a name="index-font_002dascent-22"></a><a name="Function-font_002dascent"></a>
 
 <div class="defun">
-&mdash; Function: <b>font-descent</b><var> drawable font<a name="index-font_002ddescent-23"></a></var><br>
-<blockquote><p>Returns descent of @var{font}. @{drawable} must be window, pixmap or screen. 
+&mdash; Function: <b>font-ascent</b><var> drawable font<a name="index-font_002dascent-23"></a></var><br>
+<blockquote><p>Returns ascent of <var>font</var>. <var>drawable</var> must be window, pixmap or screen. 
 </p></blockquote></div>
 
-   <p><a name="index-font_002dline_002dgap-24"></a><a name="Function-font_002dline_002dgap"></a>
+   <p><a name="index-font_002ddescent-24"></a><a name="Function-font_002ddescent"></a>
 
 <div class="defun">
-&mdash; Function: <b>font-line-gap</b><var> drawable font<a name="index-font_002dline_002dgap-25"></a></var><br>
-<blockquote><p>Returns line gap of @var{font}. @{drawable} must be window, pixmap or screen. 
+&mdash; Function: <b>font-descent</b><var> drawable font<a name="index-font_002ddescent-25"></a></var><br>
+<blockquote><p>Returns descent of <var>font</var>. <var>drawable</var> must be window, pixmap or screen. 
 </p></blockquote></div>
 
-   <p><a name="index-baseline_002dto_002dbaseline-26"></a><a name="Function-baseline_002dto_002dbaseline"></a>
+   <p><a name="index-font_002dline_002dgap-26"></a><a name="Function-font_002dline_002dgap"></a>
 
 <div class="defun">
-&mdash; Function: <b>baseline-to-baseline</b><var> drawable font<a name="index-baseline_002dto_002dbaseline-27"></a></var><br>
-<blockquote><p>Returns distance between baselines of @var{font}. @{drawable} must be window, pixmap or screen. ascent <code>-</code> descent <code>+</code> line gap
+&mdash; Function: <b>font-line-gap</b><var> drawable font<a name="index-font_002dline_002dgap-27"></a></var><br>
+<blockquote><p>Returns line gap of <var>font</var>. <var>drawable</var> must be window, pixmap or screen. 
 </p></blockquote></div>
 
-   <p><a name="index-text_002dbounding_002dbox-28"></a><a name="Function-text_002dbounding_002dbox"></a>
+   <p><a name="index-baseline_002dto_002dbaseline-28"></a><a name="Function-baseline_002dto_002dbaseline"></a>
 
 <div class="defun">
-&mdash; Function: <b>text-bounding-box</b><var> drawable font string<a name="index-text_002dbounding_002dbox-29"></a></var><br>
-<blockquote><p>Returns text bounding box. @{drawable} must be window, pixmap or screen. Text bounding box is only for contours. Bounding box for space (#x20) is zero. 
+&mdash; Function: <b>baseline-to-baseline</b><var> drawable font<a name="index-baseline_002dto_002dbaseline-29"></a></var><br>
+<blockquote><p>Returns distance between baselines of <var>font</var>. <var>drawable</var> must be window, pixmap or screen. ascent <code>-</code> descent <code>+</code> line gap
 </p></blockquote></div>
 
-   <p><a name="index-text_002dwidth-30"></a><a name="Function-text_002dwidth"></a>
+   <p><a name="index-text_002dbounding_002dbox-30"></a><a name="Function-text_002dbounding_002dbox"></a>
 
 <div class="defun">
-&mdash; Function: <b>text-width</b><var> drawable font string<a name="index-text_002dwidth-31"></a></var><br>
-<blockquote><p>Returns width of text bounding box. @{drawable} must be window, pixmap or screen. 
+&mdash; Function: <b>text-bounding-box</b><var> drawable font string<a name="index-text_002dbounding_002dbox-31"></a></var><br>
+<blockquote><p>Returns text bounding box. <var>drawable</var> must be window, pixmap or screen. Text bounding box is only for contours. Bounding box for space (#x20) is zero. 
 </p></blockquote></div>
 
-   <p><a name="index-text_002dheight-32"></a><a name="Function-text_002dheight"></a>
+   <p><a name="index-text_002dwidth-32"></a><a name="Function-text_002dwidth"></a>
 
 <div class="defun">
-&mdash; Function: <b>text-height</b><var> drawable font string<a name="index-text_002dheight-33"></a></var><br>
-<blockquote><p>Returns height of text bounding box. @{drawable} must be window, pixmap or screen. 
+&mdash; Function: <b>text-width</b><var> drawable font string<a name="index-text_002dwidth-33"></a></var><br>
+<blockquote><p>Returns width of text bounding box. <var>drawable</var> must be window, pixmap or screen. 
 </p></blockquote></div>
 
-   <p><a name="index-text_002dline_002dbounding_002dbox-34"></a><a name="Function-text_002dline_002dbounding_002dbox"></a>
+   <p><a name="index-text_002dheight-34"></a><a name="Function-text_002dheight"></a>
 
 <div class="defun">
-&mdash; Function: <b>text-line-bounding-box</b><var> drawable font string<a name="index-text_002dline_002dbounding_002dbox-35"></a></var><br>
-<blockquote><p>Returns text line bounding box. @var{drawable} must be window, pixmap or screen. Text line bounding box is bigger than text bounding box. It's height is ascent <code>+</code> descent, width is sum of advance widths minus sum of kernings. 
+&mdash; Function: <b>text-height</b><var> drawable font string<a name="index-text_002dheight-35"></a></var><br>
+<blockquote><p>Returns height of text bounding box. <var>drawable</var> must be window, pixmap or screen. 
 </p></blockquote></div>
 
-   <p><a name="index-text_002dline_002dwidth-36"></a><a name="Function-text_002dline_002dwidth"></a>
+   <p><a name="index-text_002dline_002dbounding_002dbox-36"></a><a name="Function-text_002dline_002dbounding_002dbox"></a>
 
 <div class="defun">
-&mdash; Function: <b>text-line-width</b><var> drawable font string<a name="index-text_002dline_002dwidth-37"></a></var><br>
-<blockquote><p>Returns width of text line bounding box. @var{drawable} must be window, pixmap or screen. It is sum of advance widths minus sum of kernings. 
+&mdash; Function: <b>text-line-bounding-box</b><var> drawable font string<a name="index-text_002dline_002dbounding_002dbox-37"></a></var><br>
+<blockquote><p>Returns text line bounding box. <var>drawable</var> must be window, pixmap or screen. Text line bounding box is bigger than text bounding box. It's height is ascent <code>+</code> descent, width is sum of advance widths minus sum of kernings. 
 </p></blockquote></div>
 
-   <p><a name="index-text_002dline_002dheight-38"></a><a name="Function-text_002dline_002dheight"></a>
+   <p><a name="index-text_002dline_002dwidth-38"></a><a name="Function-text_002dline_002dwidth"></a>
 
 <div class="defun">
-&mdash; Function: <b>text-line-height</b><var> drawable font string<a name="index-text_002dline_002dheight-39"></a></var><br>
-<blockquote><p>Returns height of text line bounding box. @var{drawable} must be window, pixmap or screen. 
+&mdash; Function: <b>text-line-width</b><var> drawable font string<a name="index-text_002dline_002dwidth-39"></a></var><br>
+<blockquote><p>Returns width of text line bounding box. <var>drawable</var> must be window, pixmap or screen. It is sum of advance widths minus sum of kernings. 
 </p></blockquote></div>
 
-   <p><a name="index-xmin-40"></a><a name="Function-xmin"></a>
+   <p><a name="index-text_002dline_002dheight-40"></a><a name="Function-text_002dline_002dheight"></a>
 
 <div class="defun">
-&mdash; Function: <b>xmin</b><var> bounding-box<a name="index-xmin-41"></a></var><br>
-<blockquote><p>Returns left side x of @var{bounding-box}
+&mdash; Function: <b>text-line-height</b><var> drawable font string<a name="index-text_002dline_002dheight-41"></a></var><br>
+<blockquote><p>Returns height of text line bounding box. <var>drawable</var> must be window, pixmap or screen. 
 </p></blockquote></div>
 
-   <p><a name="index-ymin-42"></a><a name="Function-ymin"></a>
+   <p><a name="index-xmin-42"></a><a name="Function-xmin"></a>
 
 <div class="defun">
-&mdash; Function: <b>ymin</b><var> bounding-box<a name="index-ymin-43"></a></var><br>
-<blockquote><p>Returns bottom side y of @var{bounding-box}
+&mdash; Function: <b>xmin</b><var> bounding-box<a name="index-xmin-43"></a></var><br>
+<blockquote><p>Returns left side x of <var>bounding-box</var>
 </p></blockquote></div>
 
-   <p><a name="index-xmax-44"></a><a name="Function-xmax"></a>
+   <p><a name="index-ymin-44"></a><a name="Function-ymin"></a>
 
 <div class="defun">
-&mdash; Function: <b>xmax</b><var> bounding-box<a name="index-xmax-45"></a></var><br>
-<blockquote><p>Returns right side x of @var{bounding-box}
+&mdash; Function: <b>ymin</b><var> bounding-box<a name="index-ymin-45"></a></var><br>
+<blockquote><p>Returns bottom side y of <var>bounding-box</var>
 </p></blockquote></div>
 
-   <p><a name="index-ymax-46"></a><a name="Function-ymax"></a>
+   <p><a name="index-xmax-46"></a><a name="Function-xmax"></a>
 
 <div class="defun">
-&mdash; Function: <b>ymax</b><var> bounding-box<a name="index-ymax-47"></a></var><br>
-<blockquote><p>Returns top side y of @var{bounding-box}
+&mdash; Function: <b>xmax</b><var> bounding-box<a name="index-xmax-47"></a></var><br>
+<blockquote><p>Returns right side x of <var>bounding-box</var>
 </p></blockquote></div>
 
-   <p><a name="index-draw_002dtext-48"></a><a name="Function-draw_002dtext"></a>
+   <p><a name="index-ymax-48"></a><a name="Function-ymax"></a>
 
 <div class="defun">
-&mdash; Function: <b>draw-text</b><var> drawable gcontext font string x y &amp;key start end<a name="index-draw_002dtext-49"></a></var><br>
-<blockquote><p>Draws text string using @var{font} on @var{drawable} with graphic context @var{gcontext}. @var{x}, @var{y} are the left point of base line. @var{start} and @var{end} are used for substring rendering. 
-If @var{gcontext} has background color, text bounding box will be filled with it. Text line bounding box is bigger than text bounding box. @var{drawable} must be window or pixmap. 
+&mdash; Function: <b>ymax</b><var> bounding-box<a name="index-ymax-49"></a></var><br>
+<blockquote><p>Returns top side y of <var>bounding-box</var>
 </p></blockquote></div>
 
-   <p><a name="index-draw_002dtext_002dline-50"></a><a name="Function-draw_002dtext_002dline"></a>
+   <p><a name="index-draw_002dtext-50"></a><a name="Function-draw_002dtext"></a>
 
 <div class="defun">
-&mdash; Function: <b>draw-text-line</b><var> drawable gcontext font string x y &amp;key start end<a name="index-draw_002dtext_002dline-51"></a></var><br>
-<blockquote><p>Draws text string using @var{font} on @var{drawable} with graphic context @var{gcontext}. @var{x}, @var{y} are the left point of base line. @var{start} and @var{end} are used for substring rendering. 
-If @var{gcontext} has background color, text line bounding box will be filled with it. Text line bounding box is bigger than text bounding box. @var{drawable} must be window or pixmap. 
+&mdash; Function: <b>draw-text</b><var> drawable gcontext font string x y &amp;key start end<a name="index-draw_002dtext-51"></a></var><br>
+<blockquote><p>Draws text string using <var>font</var> on <var>drawable</var> with graphic context <var>gcontext</var>. <var>x</var>, <var>y</var> are the left point of base line. <var>start</var> and <var>end</var> are used for substring rendering. 
+If <var>gcontext</var> has background color, text bounding box will be filled with it. Text line bounding box is bigger than text bounding box. <var>drawable</var> must be window or pixmap. 
 </p></blockquote></div>
 
-   <p><a name="index-font_002dlines_002dheight-52"></a><a name="Function-font_002dlines_002dheight"></a>
+   <p><a name="index-draw_002dtext_002dline-52"></a><a name="Function-draw_002dtext_002dline"></a>
 
 <div class="defun">
-&mdash; Function: <b>font-lines-height</b><var> drawable font lines-count<a name="index-font_002dlines_002dheight-53"></a></var><br>
+&mdash; Function: <b>draw-text-line</b><var> drawable gcontext font string x y &amp;key start end<a name="index-draw_002dtext_002dline-53"></a></var><br>
+<blockquote><p>Draws text string using <var>font</var> on <var>drawable</var> with graphic context <var>gcontext</var>. <var>x</var>, <var>y</var> are the left point of base line. <var>start</var> and <var>end</var> are used for substring rendering. 
+If <var>gcontext</var> has background color, text line bounding box will be filled with it. Text line bounding box is bigger than text bounding box. <var>drawable</var> must be window or pixmap. 
+</p></blockquote></div>
+
+   <p><a name="index-font_002dlines_002dheight-54"></a><a name="Function-font_002dlines_002dheight"></a>
+
+<div class="defun">
+&mdash; Function: <b>font-lines-height</b><var> drawable font lines-count<a name="index-font_002dlines_002dheight-55"></a></var><br>
 <blockquote><p>Returns text lines height in pixels. For one line height is ascender+descender. For more than one line height is ascender+descender+linegap. 
 </p></blockquote></div>
 
@@ -466,30 +473,31 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
 
 
 <ul class="index-fn" compact>
-<li><a href="#index-g_t_0040setf_007bscreen_002ddpi_007d-18"><code>(setf screen-dpi)</code></a>: <a href="#Dictionary">Dictionary</a></li>
-<li><a href="#index-baseline_002dto_002dbaseline-26"><code>baseline-to-baseline</code></a>: <a href="#Dictionary">Dictionary</a></li>
+<li><a href="#index-g_t_0040setf_007bscreen_002ddpi_007d-20"><code>(setf screen-dpi)</code></a>: <a href="#Dictionary">Dictionary</a></li>
+<li><a href="#index-baseline_002dto_002dbaseline-28"><code>baseline-to-baseline</code></a>: <a href="#Dictionary">Dictionary</a></li>
 <li><a href="#index-cache_002dfont_002dfile-6"><code>cache-font-file</code></a>: <a href="#Dictionary">Dictionary</a></li>
 <li><a href="#index-cache_002dfonts-4"><code>cache-fonts</code></a>: <a href="#Dictionary">Dictionary</a></li>
-<li><a href="#index-draw_002dtext-48"><code>draw-text</code></a>: <a href="#Dictionary">Dictionary</a></li>
-<li><a href="#index-draw_002dtext_002dline-50"><code>draw-text-line</code></a>: <a href="#Dictionary">Dictionary</a></li>
-<li><a href="#index-font_002dascent-20"><code>font-ascent</code></a>: <a href="#Dictionary">Dictionary</a></li>
-<li><a href="#index-font_002ddescent-22"><code>font-descent</code></a>: <a href="#Dictionary">Dictionary</a></li>
-<li><a href="#index-font_002dline_002dgap-24"><code>font-line-gap</code></a>: <a href="#Dictionary">Dictionary</a></li>
-<li><a href="#index-font_002dlines_002dheight-52"><code>font-lines-height</code></a>: <a href="#Dictionary">Dictionary</a></li>
+<li><a href="#index-draw_002dtext-50"><code>draw-text</code></a>: <a href="#Dictionary">Dictionary</a></li>
+<li><a href="#index-draw_002dtext_002dline-52"><code>draw-text-line</code></a>: <a href="#Dictionary">Dictionary</a></li>
+<li><a href="#index-font_002dascent-22"><code>font-ascent</code></a>: <a href="#Dictionary">Dictionary</a></li>
+<li><a href="#index-font_002ddescent-24"><code>font-descent</code></a>: <a href="#Dictionary">Dictionary</a></li>
+<li><a href="#index-font_002dequal-14"><code>font-equal</code></a>: <a href="#Dictionary">Dictionary</a></li>
+<li><a href="#index-font_002dline_002dgap-26"><code>font-line-gap</code></a>: <a href="#Dictionary">Dictionary</a></li>
+<li><a href="#index-font_002dlines_002dheight-54"><code>font-lines-height</code></a>: <a href="#Dictionary">Dictionary</a></li>
 <li><a href="#index-get_002dfont_002dfamilies-8"><code>get-font-families</code></a>: <a href="#Dictionary">Dictionary</a></li>
 <li><a href="#index-get_002dfont_002dsubfamilies-10"><code>get-font-subfamilies</code></a>: <a href="#Dictionary">Dictionary</a></li>
-<li><a href="#index-screen_002ddefault_002ddpi-14"><code>screen-default-dpi</code></a>: <a href="#Dictionary">Dictionary</a></li>
-<li><a href="#index-screen_002ddpi-16"><code>screen-dpi</code></a>: <a href="#Dictionary">Dictionary</a></li>
-<li><a href="#index-text_002dbounding_002dbox-28"><code>text-bounding-box</code></a>: <a href="#Dictionary">Dictionary</a></li>
-<li><a href="#index-text_002dheight-32"><code>text-height</code></a>: <a href="#Dictionary">Dictionary</a></li>
-<li><a href="#index-text_002dline_002dbounding_002dbox-34"><code>text-line-bounding-box</code></a>: <a href="#Dictionary">Dictionary</a></li>
-<li><a href="#index-text_002dline_002dheight-38"><code>text-line-height</code></a>: <a href="#Dictionary">Dictionary</a></li>
-<li><a href="#index-text_002dline_002dwidth-36"><code>text-line-width</code></a>: <a href="#Dictionary">Dictionary</a></li>
-<li><a href="#index-text_002dwidth-30"><code>text-width</code></a>: <a href="#Dictionary">Dictionary</a></li>
-<li><a href="#index-xmax-44"><code>xmax</code></a>: <a href="#Dictionary">Dictionary</a></li>
-<li><a href="#index-xmin-40"><code>xmin</code></a>: <a href="#Dictionary">Dictionary</a></li>
-<li><a href="#index-ymax-46"><code>ymax</code></a>: <a href="#Dictionary">Dictionary</a></li>
-<li><a href="#index-ymin-42"><code>ymin</code></a>: <a href="#Dictionary">Dictionary</a></li>
+<li><a href="#index-screen_002ddefault_002ddpi-16"><code>screen-default-dpi</code></a>: <a href="#Dictionary">Dictionary</a></li>
+<li><a href="#index-screen_002ddpi-18"><code>screen-dpi</code></a>: <a href="#Dictionary">Dictionary</a></li>
+<li><a href="#index-text_002dbounding_002dbox-30"><code>text-bounding-box</code></a>: <a href="#Dictionary">Dictionary</a></li>
+<li><a href="#index-text_002dheight-34"><code>text-height</code></a>: <a href="#Dictionary">Dictionary</a></li>
+<li><a href="#index-text_002dline_002dbounding_002dbox-36"><code>text-line-bounding-box</code></a>: <a href="#Dictionary">Dictionary</a></li>
+<li><a href="#index-text_002dline_002dheight-40"><code>text-line-height</code></a>: <a href="#Dictionary">Dictionary</a></li>
+<li><a href="#index-text_002dline_002dwidth-38"><code>text-line-width</code></a>: <a href="#Dictionary">Dictionary</a></li>
+<li><a href="#index-text_002dwidth-32"><code>text-width</code></a>: <a href="#Dictionary">Dictionary</a></li>
+<li><a href="#index-xmax-46"><code>xmax</code></a>: <a href="#Dictionary">Dictionary</a></li>
+<li><a href="#index-xmin-42"><code>xmin</code></a>: <a href="#Dictionary">Dictionary</a></li>
+<li><a href="#index-ymax-48"><code>ymax</code></a>: <a href="#Dictionary">Dictionary</a></li>
+<li><a href="#index-ymin-44"><code>ymin</code></a>: <a href="#Dictionary">Dictionary</a></li>
    </ul><div class="node">
 <a name="Variable-Index"></a>
 <p><hr>
@@ -543,3 +551,10 @@ translated version.
 
 </body></html>
 
+<!--
+
+Local Variables:
+coding: utf-8
+End:
+
+-->
