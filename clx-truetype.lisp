@@ -23,6 +23,7 @@
 
 (defmethod initialize-instance :before 
     ((instance font) &rest initargs &key family subfamily &allow-other-keys)
+  (declare (ignorable initargs))
   (check-valid-font-families family subfamily))
 
 (defmethod (setf font-family) :before
@@ -430,7 +431,7 @@ position before rendering), horizontal and vertical advances.
                            :width 1 :height 1)))))
     (let ((color (the xlib:card32 
                       (if (font-overwrite-gcontext font)
-                          (font-foregroung font)
+                          (font-foreground font)
                           (xlib:gcontext-foreground gcontext)))))
       (when (or (null (getf (xlib:drawable-plist drawable) :ttf-foreground))
                 (/= (getf (xlib:drawable-plist drawable) :ttf-foreground)
@@ -482,7 +483,7 @@ position before rendering), horizontal and vertical advances.
 
 ;;; Drawing text
 
-(defun draw-text (drawable gcontext font string x y &key (start 0) (end (length string)))
+(defun draw-text (drawable gcontext font string x y &key (start 0) (end (length string)) draw-backgroud-p)
   "Draws text string using @var{font} on @var{drawable} with graphic context @var{gcontext}. @var{x}, @var{y} are the left point of base line. @var{start} and @var{end} are used for substring rendering.
 If @var{gcontext} has background color, text bounding box will be filled with it. Text line bounding box is bigger than text bounding box. @var{drawable} must be window or pixmap."
   (when (>= start end)
@@ -503,7 +504,8 @@ If @var{gcontext} has background color, text bounding box will be filled with it
            (source-picture (get-drawable-pen-picture drawable))
            (destination-picture (get-drawable-picture drawable)))
       (update-foreground drawable gcontext font)
-      (update-background drawable gcontext font (+ x min-x) (- y max-y) width height)
+      (when draw-backgroud-p
+        (update-background drawable gcontext font (+ x min-x) (- y max-y) width height))
       ;; Sync the destination picture with the gcontext
       (setf (xlib:picture-clip-x-origin destination-picture) (xlib:gcontext-clip-x gcontext))
       (setf (xlib:picture-clip-y-origin destination-picture) (xlib:gcontext-clip-y gcontext))
@@ -513,7 +515,7 @@ If @var{gcontext} has background color, text bounding box will be filled with it
       (xlib:render-composite :over source-picture alpha-picture destination-picture 0 0 0 0 (+ x min-x) (- y max-y) width height)
       nil)))
 
-(defun draw-text-line (drawable gcontext font string x y &key (start 0) (end (length string)))
+(defun draw-text-line (drawable gcontext font string x y &key (start 0) (end (length string)) draw-background-p)
   "Draws text string using @var{font} on @var{drawable} with graphic context @var{gcontext}. @var{x}, @var{y} are the left point of base line. @var{start} and @var{end} are used for substring rendering.
 If @var{gcontext} has background color, text line bounding box will be filled with it. Text line bounding box is bigger than text bounding box. @var{drawable} must be window or pixmap."
   (when (>= start end)
@@ -535,7 +537,8 @@ If @var{gcontext} has background color, text line bounding box will be filled wi
            (source-picture (get-drawable-pen-picture drawable))
            (destination-picture (get-drawable-picture drawable)))
       (update-foreground drawable gcontext font)
-      (update-background drawable gcontext font (+ x min-x) (- y max-y) width height)
+      (when draw-background-p
+        (update-background drawable gcontext font (+ x min-x) (- y max-y) width height))
       ;; Sync the destination picture with the gcontext
       (setf (xlib:picture-clip-x-origin destination-picture) (xlib:gcontext-clip-x gcontext))
       (setf (xlib:picture-clip-y-origin destination-picture) (xlib:gcontext-clip-y gcontext))
