@@ -483,7 +483,8 @@ position before rendering), horizontal and vertical advances.
 
 ;;; Drawing text
 
-(defun draw-text (drawable gcontext font string x y &key (start 0) (end (length string)) draw-backgroud-p)
+(defun draw-text (drawable gcontext font string x y &key (start 0) (end (length string))
+                                                      draw-background-p)
   "Draws text string using @var{font} on @var{drawable} with graphic context @var{gcontext}. @var{x}, @var{y} are the left point of base line. @var{start} and @var{end} are used for substring rendering.
 If @var{gcontext} has background color, text bounding box will be filled with it. Text line bounding box is bigger than text bounding box. @var{drawable} must be window or pixmap."
   (when (>= start end)
@@ -504,7 +505,7 @@ If @var{gcontext} has background color, text bounding box will be filled with it
            (source-picture (get-drawable-pen-picture drawable))
            (destination-picture (get-drawable-picture drawable)))
       (update-foreground drawable gcontext font)
-      (when draw-backgroud-p
+      (when draw-background-p
         (update-background drawable gcontext font (+ x min-x) (- y max-y) width height))
       ;; Sync the destination picture with the gcontext
       (setf (xlib:picture-clip-x-origin destination-picture) (xlib:gcontext-clip-x gcontext))
