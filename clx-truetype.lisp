@@ -13,7 +13,11 @@
    (foreground :initarg :foreground :initform nil :accessor font-foreground :documentation "Foreground color.")
    (overwrite-gcontext :type boolean :initarg overwrite-gcontext :initform nil 
                        :accessor font-overwrite-gcontext :documentation "Use font values for background and foreground colors.")
-   (antialias :type boolean :initarg antialias :initform t :accessor font-antialias :documentation "Antialias text string."))
+   (antialias :type boolean :initarg antialias :initform t :accessor font-antialias :documentation "Antialias text string.")
+   (string-bboxes :type hash-table :initform (make-hash-table :test 'equal) :accessor font-string-bboxes
+                  :documentation "Cache for bboxes")
+   (string-line-bboxes :type hash-table :initform (make-hash-table :test 'equal) :accessor font-string-line-bboxes
+                  :documentation "Cache for bboxes"))
   (:documentation "Class for representing font information."))
 
 (defun check-valid-font-families (family subfamily)
@@ -34,10 +38,30 @@
   (subfamily (instance font))
   (check-valid-font-families (font-family instance) subfamily))
 
+(defmethod (setf font-family) :after
+  (family (font font))
+  (clrhash (font-string-bboxes font))
+  (clrhash (font-string-line-bboxes font)))
+
+(defmethod (setf font-subfamily) :after
+  (subfamily (font font))
+  (clrhash (font-string-bboxes font))
+  (clrhash (font-string-line-bboxes font)))
+
+
+(defmethod (setf font-size) :after (value (font font))
+  (clrhash (font-string-bboxes font))
+  (clrhash (font-string-line-bboxes font)))
+
+(defmethod (setf font-underline) :after (value (font font))
+  (clrhash (font-string-bboxes font)))
+
+(defmethod (setf font-overline) :after (value (font font))
+  (clrhash (font-string-bboxes font)))
+
 (defgeneric font-equal (font1 font2)
   (:documentation "Returns t if two font objects are equal, else returns nil.")
   (:method ((font1 font) (font2 font))
-    
     (and (string-equal (font-family font1)
                        (font-family font2))
          (string-equal (font-subfamily font1)
@@ -155,74 +179,90 @@
   (+ (font-ascent drawable font) (- (font-descent drawable font))
      (font-line-gap drawable font)))
 
-(defun text-bounding-box (drawable font string)
+(defun text-bounding-box (drawable font string &key start end)
   "Returns text bounding box. @var{drawable} must be window, pixmap or screen. Text bounding box is only for contours. Bounding box for space (#x20) is zero."
-  (with-font-loader (loader font)
-    (let* ((bbox
-             (zpb-ttf:string-bounding-box string loader))
-           (units->pixels-x (font-units->pixels-x drawable font))
-           (units->pixels-y (font-units->pixels-y drawable font))
-           (xmin (zpb-ttf:xmin bbox))
-           (ymin (zpb-ttf:ymin bbox))
-           (xmax (zpb-ttf:xmax bbox))
-           (ymax (zpb-ttf:ymax bbox)))
-      (when (font-underline font)
-        (setf ymin (min ymin (- (zpb-ttf:underline-position loader)
-                                (zpb-ttf:underline-thickness loader)))))
-      (when (font-overline font)
-        (setf ymax (max ymax (+ (zpb-ttf:ascender loader)
-                                (zpb-ttf:underline-position loader)
-                                (+ (zpb-ttf:underline-thickness loader))))))
-      (vector (floor (* xmin
-                        units->pixels-x))
-              (floor (* ymin
-                        units->pixels-y))
-              (ceiling (* xmax
-                          units->pixels-x))
-              (ceiling (* ymax
-                          units->pixels-y))))))
+  (when (and start end)
+    (setf string (subseq string start end)))
+  (or (gethash string (font-string-bboxes font))
+      (setf (gethash string (font-string-bboxes font))
+            (with-font-loader (loader font)
+              (let* ((bbox
+                       (zpb-ttf:string-bounding-box string loader))
+                     (units->pixels-x (font-units->pixels-x drawable font))
+                     (units->pixels-y (font-units->pixels-y drawable font))
+                     (xmin (zpb-ttf:xmin bbox))
+                     (ymin (zpb-ttf:ymin bbox))
+                     (xmax (zpb-ttf:xmax bbox))
+                     (ymax (zpb-ttf:ymax bbox)))
+                (when (font-underline font)
+                  (setf ymin (min ymin (- (zpb-ttf:underline-position loader)
+                                          (zpb-ttf:underline-thickness loader)))))
+                (when (font-overline font)
+                  (setf ymax (max ymax (+ (zpb-ttf:ascender loader)
+                                          (zpb-ttf:underline-position loader)
+                                          (+ (zpb-ttf:underline-thickness loader))))))
+                (vector (floor (* xmin
+                                  units->pixels-x))
+                        (floor (* ymin
+                                  units->pixels-y))
+                        (ceiling (* xmax
+                                    units->pixels-x))
+                        (ceiling (* ymax
+                                    units->pixels-y))))))))
 
-(defun text-width (drawable font string)
+(defun text-width (drawable font string &key start end)
   "Returns width of text bounding box. @var{drawable} must be window, pixmap or screen."
+  (when (and start end)
+    (setf string (subseq string start end)))
   (let ((bbox (text-bounding-box drawable font string)))
     (- (xmax bbox) (xmin bbox))))
 
-(defun text-height (drawable font string)
+(defun text-height (drawable font string &key start end)
   "Returns height of text bounding box. @var{drawable} must be window, pixmap or screen."
+  (when (and start end)
+    (setf string (subseq string start end)))
   (let ((bbox (text-bounding-box drawable font string)))
     (- (ymax bbox) (ymin bbox))))
 
-(defun text-line-bounding-box (drawable font string)
+(defun text-line-bounding-box (drawable font string &key start end)
   "Returns text line bounding box. @var{drawable} must be window, pixmap or screen. Text line bounding box is bigger than text bounding box. It's height is ascent + descent, width is sum of advance widths minus sum of kernings."
-  (with-font-loader (loader font)
-    (let* ((units->pixels-x (font-units->pixels-x drawable font))
-           (xmin 0)
-           (ymin (font-descent drawable font))
-           (ymax (font-ascent drawable font))
-           (string-length (length string))
-           (xmax (if (> string-length 0)
-                    (zpb-ttf:advance-width (zpb-ttf:find-glyph (elt string 0) loader))
-                    0)))
-      (if (zpb-ttf:fixed-pitch-p loader)
-          (setf xmax (* xmax string-length))
-          (do ((i 1 (1+ i)))
-              ((>= i string-length))
-            (incf xmax
-                  (+ (zpb-ttf:advance-width (zpb-ttf:find-glyph (elt string i) loader))
-                     (zpb-ttf:kerning-offset (elt string (1- i)) (elt string i) loader)))))
-      (vector (floor (* xmin units->pixels-x))
-              ymin
-              (ceiling (* xmax
-                          units->pixels-x))
-              ymax))))
+  (when (and start end)
+    (setf string (subseq string start end)))
+  (or (gethash string (font-string-line-bboxes font))
+      (setf (gethash string (font-string-line-bboxes font))
+            (with-font-loader (loader font)
+              (let* ((units->pixels-x (font-units->pixels-x drawable font))
+                     (xmin 0)
+                     (ymin (font-descent drawable font))
+                     (ymax (font-ascent drawable font))
+                     (string-length (length string))
+                     (xmax (if (> string-length 0)
+                               (zpb-ttf:advance-width (zpb-ttf:find-glyph (elt string 0) loader))
+                               0)))
+                (if (zpb-ttf:fixed-pitch-p loader)
+                    (setf xmax (* xmax string-length))
+                    (do ((i 1 (1+ i)))
+                        ((>= i string-length))
+                      (incf xmax
+                            (+ (zpb-ttf:advance-width (zpb-ttf:find-glyph (elt string i) loader))
+                               (zpb-ttf:kerning-offset (elt string (1- i)) (elt string i) loader)))))
+                (vector (floor (* xmin units->pixels-x))
+                        ymin
+                        (ceiling (* xmax
+                                    units->pixels-x))
+                        ymax))))))
 
-(defun text-line-width (drawable font string)
+(defun text-line-width (drawable font string &key start end)
   "Returns width of text line bounding box. @var{drawable} must be window, pixmap or screen. It is sum of advance widths minus sum of kernings."
+  (when (and start end)
+    (setf string (subseq string start end)))
   (let ((bbox (text-line-bounding-box drawable font string)))
     (- (xmax bbox) (xmin bbox))))
 
-(defun text-line-height (drawable font string)
+(defun text-line-height (drawable font string &key start end)
   "Returns height of text line bounding box. @var{drawable} must be window, pixmap or screen."
+  (when (and start end)
+    (setf string (subseq string start end)))
   (let ((bbox (text-line-bounding-box drawable font string)))
     (- (ymax bbox) (ymin bbox))))
 
@@ -483,14 +523,16 @@ position before rendering), horizontal and vertical advances.
 
 ;;; Drawing text
 
-(defun draw-text (drawable gcontext font string x y &key (start 0) (end (length string))
+(defun draw-text (drawable gcontext font string x y &key start end 
                                                       draw-background-p)
   "Draws text string using @var{font} on @var{drawable} with graphic context @var{gcontext}. @var{x}, @var{y} are the left point of base line. @var{start} and @var{end} are used for substring rendering.
 If @var{gcontext} has background color, text bounding box will be filled with it. Text line bounding box is bigger than text bounding box. @var{drawable} must be window or pixmap."
-  (when (>= start end)
-    (return-from draw-text))
+  (when (and start end)
+    (when (>= start end)
+      (return-from draw-text))
+    (setf string (subseq string start end)))
   (multiple-value-bind (alpha-data min-x max-y width height)
-      (text-pixarray drawable font (subseq string start end))
+      (text-pixarray drawable font string)
     (when (or (= 0 width) (= 0 height))
       (return-from draw-text))
     (let* ((display (xlib:drawable-display drawable))
@@ -516,13 +558,15 @@ If @var{gcontext} has background color, text bounding box will be filled with it
       (xlib:render-composite :over source-picture alpha-picture destination-picture 0 0 0 0 (+ x min-x) (- y max-y) width height)
       nil)))
 
-(defun draw-text-line (drawable gcontext font string x y &key (start 0) (end (length string)) draw-background-p)
+(defun draw-text-line (drawable gcontext font string x y &key start end  draw-background-p)
   "Draws text string using @var{font} on @var{drawable} with graphic context @var{gcontext}. @var{x}, @var{y} are the left point of base line. @var{start} and @var{end} are used for substring rendering.
 If @var{gcontext} has background color, text line bounding box will be filled with it. Text line bounding box is bigger than text bounding box. @var{drawable} must be window or pixmap."
-  (when (>= start end)
-    (return-from draw-text-line))
+  (when (and start end)
+    (when (>= start end)
+      (return-from draw-text-line))
+    (setf string (subseq string start end)))
   (multiple-value-bind (alpha-data min-x max-y width height)
-      (text-line-pixarray drawable font (subseq string start end))
+      (text-line-pixarray drawable font string)
     (when (or (= 0 width) (= 0 height))
       (return-from draw-text-line))
     (let* ((display (xlib:drawable-display drawable))
