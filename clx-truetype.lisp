@@ -558,7 +558,7 @@ If @var{gcontext} has background color, text bounding box will be filled with it
       (xlib:render-composite :over source-picture alpha-picture destination-picture 0 0 0 0 (+ x min-x) (- y max-y) width height)
       nil)))
 
-(defun draw-text-line (drawable gcontext font string x y &key start end  draw-background-p)
+(defun draw-text-line (drawable gcontext font string x y &key start end draw-background-p)
   "Draws text string using @var{font} on @var{drawable} with graphic context @var{gcontext}. @var{x}, @var{y} are the left point of base line. @var{start} and @var{end} are used for substring rendering.
 If @var{gcontext} has background color, text line bounding box will be filled with it. Text line bounding box is bigger than text bounding box. @var{drawable} must be window or pixmap."
   (when (and start end)
@@ -577,8 +577,7 @@ If @var{gcontext} has background color, text line bounding box will be filled wi
              (progn
                (xlib:put-image alpha-pixmap alpha-gc image :x 0 :y 0)
                (xlib:render-create-picture alpha-pixmap 
-                                           :format (display-alpha-picture-format display)
-                                           :repeat t)))
+                                           :format (display-alpha-picture-format display))))
            (source-picture (get-drawable-pen-picture drawable))
            (destination-picture (get-drawable-picture drawable)))
       (update-foreground drawable gcontext font)
@@ -622,7 +621,6 @@ If @var{gcontext} has background color, text line bounding box will be filled wi
                                 (- (xft:font-descent drawable font))
                                 (xft:font-line-gap drawable font))))
       0))
-
 
 ;;; "clx-truetype" goes here. Hacks and glory await!
 

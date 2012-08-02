@@ -41,7 +41,7 @@
                         (draw-text window grackon font "The quick brown fox jumps over the lazy dog." 100 100 :draw-background-p t)
                         (when (= 0 (random 2))
                           (rotatef (xlib:gcontext-foreground grackon) (xlib:gcontext-background grackon)))
-                        (draw-text window grackon font "Съешь же ещё этих мягких французских булок, да выпей чаю." 100 (+ 100 (baseline-to-baseline window font)) :draw-background-p t)
+                        (draw-text-line window grackon font "Съешь же ещё этих мягких французских булок, да выпей чаю." 100 (+ 100 (baseline-to-baseline window font)) :draw-background-p t)
                         (setf (font-antialias font) (= 0 (random 2)))
                         (if (= 0 (random 2))
                             (setf (font-subfamily font) "Regular")
