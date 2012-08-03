@@ -60,7 +60,10 @@
 ;; family ->
 ;;   subfamily -> filename
 ;;   subfamily -> filename
-(defvar *font-cache*
-  #.(cl-store:restore +font-cache-filename+)
-  "Hashmap for caching font families, subfamilies and files.")
+(eval-when (:load-toplevel :execute)
+  (defparameter *font-cache*
+    (if (fad:file-exists-p +font-cache-filename+)
+        (cl-store:restore +font-cache-filename+)
+        (make-hash-table :test 'equal))
+    "Hashmap for caching font families, subfamilies and files."))
 
