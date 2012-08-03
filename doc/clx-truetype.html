@@ -291,6 +291,12 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
 <li><code>antialias</code> &mdash; initarg: <code>clx-truetype::antialias<!-- /@w --></code>; reader: <code>clx-truetype:font-antialias<!-- /@w --></code>; writer: <code>(setf&nbsp;clx-truetype:font-antialias)<!-- /@w --></code>
 
           <p>Antialias text string. 
+<li><code>string-bboxes</code> &mdash; reader: <code>clx-truetype::font-string-bboxes<!-- /@w --></code>; writer: <code>(setf&nbsp;clx-truetype::font-string-bboxes)<!-- /@w --></code>
+
+          <p>Cache for bboxes
+<li><code>string-line-bboxes</code> &mdash; reader: <code>clx-truetype::font-string-line-bboxes<!-- /@w --></code>; writer: <code>(setf&nbsp;clx-truetype::font-string-line-bboxes)<!-- /@w --></code>
+
+          <p>Cache for bboxes
 </ul>
 
         <p>Class for representing font information. 
@@ -355,42 +361,42 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
    <p><a name="index-text_002dbounding_002dbox-30"></a><a name="Function-text_002dbounding_002dbox"></a>
 
 <div class="defun">
-&mdash; Function: <b>text-bounding-box</b><var> drawable font string<a name="index-text_002dbounding_002dbox-31"></a></var><br>
+&mdash; Function: <b>text-bounding-box</b><var> drawable font string &amp;key start end<a name="index-text_002dbounding_002dbox-31"></a></var><br>
 <blockquote><p>Returns text bounding box. <var>drawable</var> must be window, pixmap or screen. Text bounding box is only for contours. Bounding box for space (#x20) is zero. 
 </p></blockquote></div>
 
    <p><a name="index-text_002dwidth-32"></a><a name="Function-text_002dwidth"></a>
 
 <div class="defun">
-&mdash; Function: <b>text-width</b><var> drawable font string<a name="index-text_002dwidth-33"></a></var><br>
+&mdash; Function: <b>text-width</b><var> drawable font string &amp;key start end<a name="index-text_002dwidth-33"></a></var><br>
 <blockquote><p>Returns width of text bounding box. <var>drawable</var> must be window, pixmap or screen. 
 </p></blockquote></div>
 
    <p><a name="index-text_002dheight-34"></a><a name="Function-text_002dheight"></a>
 
 <div class="defun">
-&mdash; Function: <b>text-height</b><var> drawable font string<a name="index-text_002dheight-35"></a></var><br>
+&mdash; Function: <b>text-height</b><var> drawable font string &amp;key start end<a name="index-text_002dheight-35"></a></var><br>
 <blockquote><p>Returns height of text bounding box. <var>drawable</var> must be window, pixmap or screen. 
 </p></blockquote></div>
 
    <p><a name="index-text_002dline_002dbounding_002dbox-36"></a><a name="Function-text_002dline_002dbounding_002dbox"></a>
 
 <div class="defun">
-&mdash; Function: <b>text-line-bounding-box</b><var> drawable font string<a name="index-text_002dline_002dbounding_002dbox-37"></a></var><br>
+&mdash; Function: <b>text-line-bounding-box</b><var> drawable font string &amp;key start end<a name="index-text_002dline_002dbounding_002dbox-37"></a></var><br>
 <blockquote><p>Returns text line bounding box. <var>drawable</var> must be window, pixmap or screen. Text line bounding box is bigger than text bounding box. It's height is ascent <code>+</code> descent, width is sum of advance widths minus sum of kernings. 
 </p></blockquote></div>
 
    <p><a name="index-text_002dline_002dwidth-38"></a><a name="Function-text_002dline_002dwidth"></a>
 
 <div class="defun">
-&mdash; Function: <b>text-line-width</b><var> drawable font string<a name="index-text_002dline_002dwidth-39"></a></var><br>
+&mdash; Function: <b>text-line-width</b><var> drawable font string &amp;key start end<a name="index-text_002dline_002dwidth-39"></a></var><br>
 <blockquote><p>Returns width of text line bounding box. <var>drawable</var> must be window, pixmap or screen. It is sum of advance widths minus sum of kernings. 
 </p></blockquote></div>
 
    <p><a name="index-text_002dline_002dheight-40"></a><a name="Function-text_002dline_002dheight"></a>
 
 <div class="defun">
-&mdash; Function: <b>text-line-height</b><var> drawable font string<a name="index-text_002dline_002dheight-41"></a></var><br>
+&mdash; Function: <b>text-line-height</b><var> drawable font string &amp;key start end<a name="index-text_002dline_002dheight-41"></a></var><br>
 <blockquote><p>Returns height of text line bounding box. <var>drawable</var> must be window, pixmap or screen. 
 </p></blockquote></div>
 
@@ -425,7 +431,7 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
    <p><a name="index-draw_002dtext-50"></a><a name="Function-draw_002dtext"></a>
 
 <div class="defun">
-&mdash; Function: <b>draw-text</b><var> drawable gcontext font string x y &amp;key start end<a name="index-draw_002dtext-51"></a></var><br>
+&mdash; Function: <b>draw-text</b><var> drawable gcontext font string x y &amp;key start end draw-background-p<a name="index-draw_002dtext-51"></a></var><br>
 <blockquote><p>Draws text string using <var>font</var> on <var>drawable</var> with graphic context <var>gcontext</var>. <var>x</var>, <var>y</var> are the left point of base line. <var>start</var> and <var>end</var> are used for substring rendering. 
 If <var>gcontext</var> has background color, text bounding box will be filled with it. Text line bounding box is bigger than text bounding box. <var>drawable</var> must be window or pixmap. 
 </p></blockquote></div>
@@ -433,7 +439,7 @@ If <var>gcontext</var> has background color, text bounding box will be filled wi
    <p><a name="index-draw_002dtext_002dline-52"></a><a name="Function-draw_002dtext_002dline"></a>
 
 <div class="defun">
-&mdash; Function: <b>draw-text-line</b><var> drawable gcontext font string x y &amp;key start end<a name="index-draw_002dtext_002dline-53"></a></var><br>
+&mdash; Function: <b>draw-text-line</b><var> drawable gcontext font string x y &amp;key start end draw-background-p<a name="index-draw_002dtext_002dline-53"></a></var><br>
 <blockquote><p>Draws text string using <var>font</var> on <var>drawable</var> with graphic context <var>gcontext</var>. <var>x</var>, <var>y</var> are the left point of base line. <var>start</var> and <var>end</var> are used for substring rendering. 
 If <var>gcontext</var> has background color, text line bounding box will be filled with it. Text line bounding box is bigger than text bounding box. <var>drawable</var> must be window or pixmap. 
 </p></blockquote></div>

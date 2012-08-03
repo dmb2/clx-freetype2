@@ -35,6 +35,12 @@ Use font values for background and foreground colors.
 @item @code{antialias} --- initarg: @code{@w{clx-truetype::antialias}}; reader: @code{@w{clx-truetype:font-antialias}}; writer: @code{@w{(setf clx-truetype:font-antialias)}}
 
 Antialias text string.
+@item @code{string-bboxes} --- reader: @code{@w{clx-truetype::font-string-bboxes}}; writer: @code{@w{(setf clx-truetype::font-string-bboxes)}}
+
+Cache for bboxes
+@item @code{string-line-bboxes} --- reader: @code{@w{clx-truetype::font-string-line-bboxes}}; writer: @code{@w{(setf clx-truetype::font-string-line-bboxes)}}
+
+Cache for bboxes
 @end itemize
 
 Class for representing font information.
