@@ -1,24 +1,27 @@
 
 (in-package #:clx-truetype)
 
-(defvar *font-dirs* #+unix (list "/usr/share/fonts/TTF/"
+(defvar *font-dirs* #+unix (list "/usr/share/fonts/"
                                  (namestring (merge-pathnames ".fonts/" (user-homedir-pathname))))
         #+macos (list "/Library/Fonts/")
+        #+windows  (list (namestring
+                          (merge-pathnames "fonts/" 
+                                           (pathname (concatenate 'string (asdf:getenv "WINDIR") "/")))))
         "List of directories, which contain TrueType fonts.")
 
 ;;(pushnew (xlib:font-path *display*) *font-dirs*)
 (defun cache-font-file (pathname)
   "Caches font file."
-  (ignore-errors  
-   (zpb-ttf:with-font-loader (font pathname)
-     (multiple-value-bind (hash-table exists-p)
-         (gethash (zpb-ttf:family-name font) *font-cache*
-                  (make-hash-table :test 'equal))
-       (setf (gethash (zpb-ttf:subfamily-name font) hash-table)
-             pathname)
-       (unless exists-p
-         (setf (gethash (zpb-ttf:family-name font) *font-cache*)
-               hash-table))))))
+  (ignore-errors 
+    (zpb-ttf:with-font-loader (font pathname)
+      (multiple-value-bind (hash-table exists-p)
+          (gethash (zpb-ttf:family-name font) *font-cache*
+                   (make-hash-table :test 'equal))
+        (setf (gethash (zpb-ttf:subfamily-name font) hash-table)
+              pathname)
+        (unless exists-p
+          (setf (gethash (zpb-ttf:family-name font) *font-cache*)
+                hash-table))))))
 
 (defun ttf-pathname-test (pathname)
   (string-equal "ttf" (pathname-type pathname)))
