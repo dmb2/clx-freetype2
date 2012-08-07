@@ -12,7 +12,8 @@
                #:cl-paths-ttf
                #:cl-aa
                #:cl-fad
-               #:cl-store)
+               #:cl-store
+               #:trivial-features)
   :components ((:file "package")
                (:file "clx-utils")
                (:file "font-cache")

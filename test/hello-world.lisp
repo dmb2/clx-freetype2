@@ -8,14 +8,18 @@
 
 (in-package :clx-truetype-test)
 
-(defparameter *display* (xlib:open-default-display))
+(defparameter *display* nil)
 ;;(defparameter *display* (xlib:open-default-display "192.168.1.101:0.0"))
 
-(defparameter *screen* (xlib:display-default-screen *display*))
-(defparameter *root* (xlib:screen-root *screen*))
+(defparameter *screen* nil)
+(defparameter *root* nil)
 
 (defun show-window ()
-  (let* ((black (xlib:screen-black-pixel *screen*))
+  (let* ((*display* #-windows (xlib:open-default-display)
+                    #+windows (xlib:open-display "127.0.0.1" :protocol :tcp))
+         (*screen* (xlib:display-default-screen *display*))
+         (*root* (xlib:screen-root *screen*))
+         (black (xlib:screen-black-pixel *screen*))
          (white (xlib:screen-white-pixel *screen*))
          (window
            (xlib:create-window :parent *root* :x 0 :y 0 :width 640 :height 480 
@@ -54,4 +58,4 @@
       (progn
         (xlib:free-gcontext grackon)
         (xlib:destroy-window window)
-        (xlib:display-force-output *display*)))))
+        (xlib:close-display *display*)))))
