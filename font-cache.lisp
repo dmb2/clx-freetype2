@@ -1,24 +1,28 @@
 
 (in-package #:clx-truetype)
 
-(defvar *font-dirs* #+unix (list "/usr/share/fonts/TTF/"
-                                 (namestring (merge-pathnames ".fonts/" (user-homedir-pathname))))
-        #+macos (list "/Library/Fonts/")
+(defvar *font-dirs* #+(or unix netbsd openbsd freebsd) (list "/usr/share/fonts/"
+                                     (namestring (merge-pathnames ".fonts/" (user-homedir-pathname))))
+        #+darwin (list "/Library/Fonts/")
+        #+windows  (list (namestring
+                          (merge-pathnames "fonts/" 
+                                           (pathname (concatenate 'string (asdf:getenv "WINDIR") "/")))))
         "List of directories, which contain TrueType fonts.")
 
 ;;(pushnew (xlib:font-path *display*) *font-dirs*)
 (defun cache-font-file (pathname)
   "Caches font file."
-  (ignore-errors  
-   (zpb-ttf:with-font-loader (font pathname)
-     (multiple-value-bind (hash-table exists-p)
-         (gethash (zpb-ttf:family-name font) *font-cache*
-                  (make-hash-table :test 'equal))
-       (setf (gethash (zpb-ttf:subfamily-name font) hash-table)
-             pathname)
-       (unless exists-p
-         (setf (gethash (zpb-ttf:family-name font) *font-cache*)
-               hash-table))))))
+  (handler-case 
+    (zpb-ttf:with-font-loader (font pathname)
+      (multiple-value-bind (hash-table exists-p)
+          (gethash (zpb-ttf:family-name font) *font-cache*
+                   (make-hash-table :test 'equal))
+        (setf (gethash (zpb-ttf:subfamily-name font) hash-table)
+              pathname)
+        (unless exists-p
+          (setf (gethash (zpb-ttf:family-name font) *font-cache*)
+                hash-table))))
+    (condition () (return-from cache-font-file))))
 
 (defun ttf-pathname-test (pathname)
   (string-equal "ttf" (pathname-type pathname)))
@@ -34,6 +38,7 @@
   (dolist (font-dir *font-dirs*)
     (fad:walk-directory font-dir #'cache-font-file :if-does-not-exist :ignore
                         :test #'ttf-pathname-test))
+  (ensure-directories-exist +font-cache-filename+)
   (cl-store:store *font-cache* +font-cache-filename+))
 
 (defun get-font-families ()
