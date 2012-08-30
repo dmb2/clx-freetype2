@@ -497,20 +497,23 @@ position before rendering), horizontal and vertical advances.
 (defun get-drawable-picture (drawable)
   (or (getf (xlib:drawable-plist drawable) :ttf-surface)
       (setf (getf (xlib:drawable-plist drawable) :ttf-surface)
-            (xlib:render-create-picture drawable :format
-                                        (xlib:find-window-picture-format drawable)))))
+            (xlib:render-create-picture 
+             drawable 
+             :format (first (xlib::find-matching-picture-formats (xlib:drawable-display drawable)
+                                                                 :depth (xlib:drawable-depth drawable)))))))
 
 (defun get-drawable-pen-picture (drawable)
   (or (getf (xlib:drawable-plist drawable) :ttf-pen)
       (setf (getf (xlib:drawable-plist drawable) :ttf-pen)
-            (xlib:render-create-picture 
+            (xlib:render-create-picture
              (or (getf (xlib:drawable-plist drawable) :ttf-pen-surface)
                  (setf (getf (xlib:drawable-plist drawable) :ttf-pen-surface)
                        (xlib:create-pixmap 
                         :drawable drawable
                         :depth (xlib:drawable-depth drawable)
                         :width 1 :height 1)))
-             :format (xlib:find-window-picture-format drawable)
+             :format (first (xlib::find-matching-picture-formats (xlib:drawable-display drawable)
+                                                                 :depth (xlib:drawable-depth drawable)))
              :repeat :on))))
 
 (defun display-alpha-picture-format (display)
@@ -571,6 +574,7 @@ If @var{gcontext} has background color, text line bounding box will be filled wi
       (return-from draw-text-line))
     (let* ((display (xlib:drawable-display drawable))
            (image (xlib:create-image :width width :height height :depth 8 :data alpha-data))
+
            (alpha-pixmap (xlib:create-pixmap :width width :height height :depth 8 :drawable drawable))
            (alpha-gc (xlib:create-gcontext :drawable alpha-pixmap))
            (alpha-picture
