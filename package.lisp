@@ -12,7 +12,7 @@
    :font-strikethrough
    :font-overline
    :font-background
-   :font-foregroung
+   :font-foreground
    :font-overwrite-gcontext
    :cache-font-file
    :*font-dirs*

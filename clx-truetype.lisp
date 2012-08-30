@@ -11,9 +11,9 @@
    (overline :type boolean :initarg :overline :initform nil :accessor font-overline :documentation "Draw line over text string.")
    (background :initarg :background :initform nil :accessor font-background :documentation "Background color.")
    (foreground :initarg :foreground :initform nil :accessor font-foreground :documentation "Foreground color.")
-   (overwrite-gcontext :type boolean :initarg overwrite-gcontext :initform nil 
+   (overwrite-gcontext :type boolean :initarg :overwrite-gcontext :initform nil 
                        :accessor font-overwrite-gcontext :documentation "Use font values for background and foreground colors.")
-   (antialias :type boolean :initarg antialias :initform t :accessor font-antialias :documentation "Antialias text string.")
+   (antialias :type boolean :initarg :antialias :initform t :accessor font-antialias :documentation "Antialias text string.")
    (string-bboxes :type hash-table :initform (make-hash-table :test 'equal) :accessor font-string-bboxes
                   :documentation "Cache for bboxes")
    (string-line-bboxes :type hash-table :initform (make-hash-table :test 'equal) :accessor font-string-line-bboxes
@@ -47,7 +47,6 @@
   (subfamily (font font))
   (clrhash (font-string-bboxes font))
   (clrhash (font-string-line-bboxes font)))
-
 
 (defmethod (setf font-size) :after (value (font font))
   (clrhash (font-string-bboxes font))
