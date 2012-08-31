@@ -15,9 +15,13 @@
                        :accessor font-overwrite-gcontext :documentation "Use font values for background and foreground colors.")
    (antialias :type boolean :initarg :antialias :initform t :accessor font-antialias :documentation "Antialias text string.")
    (string-bboxes :type hash-table :initform (make-hash-table :test 'equal) :accessor font-string-bboxes
-                  :documentation "Cache for bboxes")
+                  :documentation "Cache for text bboxes")
    (string-line-bboxes :type hash-table :initform (make-hash-table :test 'equal) :accessor font-string-line-bboxes
-                  :documentation "Cache for bboxes"))
+                  :documentation "Cache for text line bboxes")
+   (string-alpha-maps :type hash-table :initform (make-hash-table :test 'equal) :accessor font-string-alpha-maps
+                      :documentation "Cache for text alpha maps")
+   (string-line-alpha-maps :type hash-table :initform (make-hash-table :test 'equal) :accessor font-string-line-alpha-maps
+                           :documentation "Cache for text line alpha maps"))
   (:documentation "Class for representing font information."))
 
 (defun check-valid-font-families (family subfamily)
@@ -182,32 +186,38 @@
   "Returns text bounding box. @var{drawable} must be window, pixmap or screen. Text bounding box is only for contours. Bounding box for space (#x20) is zero."
   (when (and start end)
     (setf string (subseq string start end)))
-  (or (gethash string (font-string-bboxes font))
-      (setf (gethash string (font-string-bboxes font))
-            (with-font-loader (loader font)
-              (let* ((bbox
-                       (zpb-ttf:string-bounding-box string loader))
-                     (units->pixels-x (font-units->pixels-x drawable font))
-                     (units->pixels-y (font-units->pixels-y drawable font))
-                     (xmin (zpb-ttf:xmin bbox))
-                     (ymin (zpb-ttf:ymin bbox))
-                     (xmax (zpb-ttf:xmax bbox))
-                     (ymax (zpb-ttf:ymax bbox)))
-                (when (font-underline font)
-                  (setf ymin (min ymin (- (zpb-ttf:underline-position loader)
-                                          (zpb-ttf:underline-thickness loader)))))
-                (when (font-overline font)
-                  (setf ymax (max ymax (+ (zpb-ttf:ascender loader)
-                                          (zpb-ttf:underline-position loader)
-                                          (+ (zpb-ttf:underline-thickness loader))))))
-                (vector (floor (* xmin
-                                  units->pixels-x))
-                        (floor (* ymin
-                                  units->pixels-y))
-                        (ceiling (* xmax
-                                    units->pixels-x))
-                        (ceiling (* ymax
-                                    units->pixels-y))))))))
+  (multiple-value-bind (dpi-x dpi-y)
+      (screen-dpi (drawable-screen drawable))
+    (multiple-value-bind (string-bboxes exists-p)
+        (gethash (cons dpi-x dpi-y) (font-string-bboxes font) (make-hash-table :test 'equal))
+      (unless exists-p
+        (setf (gethash (cons dpi-x dpi-y) (font-string-bboxes font)) string-bboxes))
+      (or (gethash string string-bboxes)
+          (setf (gethash string string-bboxes)
+                (with-font-loader (loader font)
+                  (let* ((bbox
+                           (zpb-ttf:string-bounding-box string loader))
+                         (units->pixels-x (font-units->pixels-x drawable font))
+                         (units->pixels-y (font-units->pixels-y drawable font))
+                         (xmin (zpb-ttf:xmin bbox))
+                         (ymin (zpb-ttf:ymin bbox))
+                         (xmax (zpb-ttf:xmax bbox))
+                         (ymax (zpb-ttf:ymax bbox)))
+                    (when (font-underline font)
+                      (setf ymin (min ymin (- (zpb-ttf:underline-position loader)
+                                              (zpb-ttf:underline-thickness loader)))))
+                    (when (font-overline font)
+                      (setf ymax (max ymax (+ (zpb-ttf:ascender loader)
+                                              (zpb-ttf:underline-position loader)
+                                              (+ (zpb-ttf:underline-thickness loader))))))
+                    (vector (floor (* xmin
+                                      units->pixels-x))
+                            (floor (* ymin
+                                      units->pixels-y))
+                            (ceiling (* xmax
+                                        units->pixels-x))
+                            (ceiling (* ymax
+                                        units->pixels-y))))))))))
 
 (defun text-width (drawable font string &key start end)
   "Returns width of text bounding box. @var{drawable} must be window, pixmap or screen."
@@ -227,29 +237,35 @@
   "Returns text line bounding box. @var{drawable} must be window, pixmap or screen. Text line bounding box is bigger than text bounding box. It's height is ascent + descent, width is sum of advance widths minus sum of kernings."
   (when (and start end)
     (setf string (subseq string start end)))
-  (or (gethash string (font-string-line-bboxes font))
-      (setf (gethash string (font-string-line-bboxes font))
-            (with-font-loader (loader font)
-              (let* ((units->pixels-x (font-units->pixels-x drawable font))
-                     (xmin 0)
-                     (ymin (font-descent drawable font))
-                     (ymax (font-ascent drawable font))
-                     (string-length (length string))
-                     (xmax (if (> string-length 0)
-                               (zpb-ttf:advance-width (zpb-ttf:find-glyph (elt string 0) loader))
-                               0)))
-                (if (zpb-ttf:fixed-pitch-p loader)
-                    (setf xmax (* xmax string-length))
-                    (do ((i 1 (1+ i)))
-                        ((>= i string-length))
-                      (incf xmax
-                            (+ (zpb-ttf:advance-width (zpb-ttf:find-glyph (elt string i) loader))
-                               (zpb-ttf:kerning-offset (elt string (1- i)) (elt string i) loader)))))
-                (vector (floor (* xmin units->pixels-x))
-                        ymin
-                        (ceiling (* xmax
-                                    units->pixels-x))
-                        ymax))))))
+  (multiple-value-bind (dpi-x dpi-y)
+      (screen-dpi (drawable-screen drawable))
+    (multiple-value-bind (string-line-bboxes exists-p)
+        (gethash (cons dpi-x dpi-y) (font-string-line-bboxes font) (make-hash-table :test 'equal))
+      (unless exists-p
+        (setf (gethash (cons dpi-x dpi-y) (font-string-line-bboxes font)) string-line-bboxes))
+      (or (gethash string string-line-bboxes)
+          (setf (gethash string string-line-bboxes)
+                (with-font-loader (loader font)
+                  (let* ((units->pixels-x (font-units->pixels-x drawable font))
+                         (xmin 0)
+                         (ymin (font-descent drawable font))
+                         (ymax (font-ascent drawable font))
+                         (string-length (length string))
+                         (xmax (if (> string-length 0)
+                                   (zpb-ttf:advance-width (zpb-ttf:find-glyph (elt string 0) loader))
+                                   0)))
+                    (if (zpb-ttf:fixed-pitch-p loader)
+                        (setf xmax (* xmax string-length))
+                        (do ((i 1 (1+ i)))
+                            ((>= i string-length))
+                          (incf xmax
+                                (+ (zpb-ttf:advance-width (zpb-ttf:find-glyph (elt string i) loader))
+                                   (zpb-ttf:kerning-offset (elt string (1- i)) (elt string i) loader)))))
+                    (vector (floor (* xmin units->pixels-x))
+                            ymin
+                            (ceiling (* xmax
+                                        units->pixels-x))
+                            ymax))))))))
 
 (defun text-line-width (drawable font string &key start end)
   "Returns width of text line bounding box. @var{drawable} must be window, pixmap or screen. It is sum of advance widths minus sum of kernings."
@@ -339,62 +355,73 @@ suitable as an alpha mask, and dimensions. This function returns five
 values: alpha mask byte array, x-origin, y-origin (subtracted from
 position before rendering), horizontal and vertical advances.
 @var{drawable} must be window or pixmap."
-  (with-font-loader (font-loader font)
-    (let* ((bbox (text-bounding-box drawable font string))
-           (min-x (xmin bbox))
-           (min-y (ymin bbox))
-           (max-x (xmax bbox))
-           (max-y (ymax bbox))
-           (width  (- max-x min-x))
-           (height (- max-y min-y))
-           (units->pixels-x (font-units->pixels-x drawable font))
-           (units->pixels-y (font-units->pixels-y drawable font))
-           (array (make-array (list height width)
-                              :initial-element 0
-                              :element-type '(unsigned-byte 8)))
-           (state (make-state font))
-           (paths (paths-ttf:paths-from-string font-loader string
-                                               :offset (paths:make-point (- min-x)
-                                                                         max-y)
-                                               :scale-x units->pixels-x
-                                               :scale-y (- units->pixels-y))))
-      (when (or (= 0 width) (= 0 height))
-        (return-from text-pixarray (values nil 0 0 0 0)))
-      (when (font-underline font)
-        (let* ((thickness (* units->pixels-y (zpb-ttf:underline-thickness font-loader)))
-               (underline-offset (* units->pixels-y (zpb-ttf:underline-position font-loader)))
-               (underline-path (paths:make-rectangle-path 0 (+ max-y (- underline-offset))
-                                                          max-x (+ max-y (- underline-offset) thickness))))
-          (push underline-path paths)))
-      (when (font-strikethrough font)
-        (let* ((thickness (* units->pixels-y (zpb-ttf:underline-thickness font-loader)))
-               (underline-offset (* 2 units->pixels-y (zpb-ttf:underline-position font-loader)))
-               (line-path (paths:make-rectangle-path 0 (+ max-y underline-offset) max-x (+ max-y underline-offset thickness))))
-          (push line-path paths)))
-      (when (font-overline font)
-        (let* ((thickness (* units->pixels-y (zpb-ttf:underline-thickness font-loader)))
-               (underline-offset (* units->pixels-y (zpb-ttf:underline-position font-loader)))
-               (ascend (* units->pixels-y (zpb-ttf:ascender font-loader)))
-               (overline-path (paths:make-rectangle-path 0 (- max-y ascend underline-offset)
-                                                         max-x
-                                                         (- max-y ascend underline-offset thickness))))
-          (push overline-path paths)))
-      (update-state font state paths)
-      (cells-sweep font state
-                      (lambda (x y alpha)
-                        (when (and (<= 0 x (1- width))
-                                   (<= 0 y (1- height)))
-                          (setf alpha (min 255 (abs alpha))
-                                (aref array y x) (clamp
-                                                  (floor (+ (* (- 256 alpha) (aref array y x))
-                                                            (* alpha 255))
-                                                         256)
-                                                  0 255)))))
-      (values array 
-              min-x
-              max-y
-              width
-              height))))
+  (multiple-value-bind (dpi-x dpi-y)
+      (screen-dpi (drawable-screen drawable))
+    (multiple-value-bind (string-alpha-maps exists-p)
+        (gethash (cons dpi-x dpi-y) (font-string-alpha-maps font) (make-hash-table :test 'equal))
+      (unless exists-p
+        (setf (gethash (cons dpi-x dpi-y) (font-string-alpha-maps font)) string-alpha-maps))
+      (apply 
+       'values 
+       (or (gethash string string-alpha-maps)
+           (setf (gethash string string-alpha-maps)
+                 (with-font-loader (font-loader font)
+                   (let* ((bbox (text-bounding-box drawable font string))
+                          (min-x (xmin bbox))
+                          (min-y (ymin bbox))
+                          (max-x (xmax bbox))
+                          (max-y (ymax bbox))
+                          (width  (- max-x min-x))
+                          (height (- max-y min-y)))
+                     (if (or (= 0 width) (= 0 height))
+                         (list nil 0 0 0 0)
+                         (let* ((units->pixels-x (font-units->pixels-x drawable font))
+                                (units->pixels-y (font-units->pixels-y drawable font))
+                                (array (make-array (list height width)
+                                                   :initial-element 0
+                                                   :element-type '(unsigned-byte 8)))
+                                (state (make-state font))
+                                (paths (paths-ttf:paths-from-string font-loader string
+                                                                    :offset (paths:make-point (- min-x)
+                                                                                              max-y)
+                                                                    :scale-x units->pixels-x
+                                                                    :scale-y (- units->pixels-y))))
+                           
+                           (when (font-underline font)
+                             (let* ((thickness (* units->pixels-y (zpb-ttf:underline-thickness font-loader)))
+                                    (underline-offset (* units->pixels-y (zpb-ttf:underline-position font-loader)))
+                                    (underline-path (paths:make-rectangle-path 0 (+ max-y (- underline-offset))
+                                                                               max-x (+ max-y (- underline-offset) thickness))))
+                               (push underline-path paths)))
+                           (when (font-strikethrough font)
+                             (let* ((thickness (* units->pixels-y (zpb-ttf:underline-thickness font-loader)))
+                                    (underline-offset (* 2 units->pixels-y (zpb-ttf:underline-position font-loader)))
+                                    (line-path (paths:make-rectangle-path 0 (+ max-y underline-offset) max-x (+ max-y underline-offset thickness))))
+                               (push line-path paths)))
+                           (when (font-overline font)
+                             (let* ((thickness (* units->pixels-y (zpb-ttf:underline-thickness font-loader)))
+                                    (underline-offset (* units->pixels-y (zpb-ttf:underline-position font-loader)))
+                                    (ascend (* units->pixels-y (zpb-ttf:ascender font-loader)))
+                                    (overline-path (paths:make-rectangle-path 0 (- max-y ascend underline-offset)
+                                                                              max-x
+                                                                              (- max-y ascend underline-offset thickness))))
+                               (push overline-path paths)))
+                           (update-state font state paths)
+                           (cells-sweep font state
+                                        (lambda (x y alpha)
+                                          (when (and (<= 0 x (1- width))
+                                                     (<= 0 y (1- height)))
+                                            (setf alpha (min 255 (abs alpha))
+                                                  (aref array y x) (clamp
+                                                                    (floor (+ (* (- 256 alpha) (aref array y x))
+                                                                              (* alpha 255))
+                                                                           256)
+                                                                    0 255)))))
+                           (list array 
+                                 min-x
+                                 max-y
+                                 width
+                                 height)))))))))))
 
 
 (defun text-line-pixarray (drawable font string)
@@ -403,62 +430,72 @@ suitable as an alpha mask, and dimensions. This function returns five
 values: alpha mask byte array, x-origin, y-origin (subtracted from
 position before rendering), horizontal and vertical advances.
 @var{drawable} must be window or pixmap."
-  (with-font-loader (font-loader font)
-    (let* ((bbox (text-line-bounding-box drawable font string))
-           (min-x (xmin bbox))
-           (min-y (ymin bbox))
-           (max-x (xmax bbox))
-           (max-y (ymax bbox))
-           (width  (- max-x min-x))
-           (height (- max-y min-y))
-           (units->pixels-x (font-units->pixels-x drawable font))
-           (units->pixels-y (font-units->pixels-y drawable font))
-           (array (make-array (list height width)
-                              :initial-element 0
-                              :element-type '(unsigned-byte 8)))
-           (state (make-state font))
-           (paths (paths-ttf:paths-from-string font-loader string
-                                               :offset (paths:make-point (- min-x)
-                                                                         max-y)
-                                               :scale-x units->pixels-x
-                                               :scale-y (- units->pixels-y))))
-      (when (or (= 0 width) (= 0 height))
-        (return-from text-line-pixarray (values nil 0 0 0 0)))
-      (when (font-underline font)
-        (let* ((thickness (* units->pixels-y (zpb-ttf:underline-thickness font-loader)))
-               (underline-offset (* units->pixels-y (zpb-ttf:underline-position font-loader)))
-               (underline-path (paths:make-rectangle-path 0 (+ max-y (- underline-offset))
-                                                          max-x (+ max-y (- underline-offset) thickness))))
-          (push underline-path paths)))
-      (when (font-strikethrough font)
-        (let* ((thickness (* units->pixels-y (zpb-ttf:underline-thickness font-loader)))
-               (underline-offset (* 2 units->pixels-y (zpb-ttf:underline-position font-loader)))
-               (line-path (paths:make-rectangle-path 0 (+ max-y underline-offset) max-x (+ max-y underline-offset thickness))))
-          (push line-path paths)))
-      (when (font-overline font)
-        (let* ((thickness (* units->pixels-y (zpb-ttf:underline-thickness font-loader)))
-               (underline-offset (* units->pixels-y (zpb-ttf:underline-position font-loader)))
-               (ascend (* units->pixels-y (zpb-ttf:ascender font-loader)))
-               (overline-path (paths:make-rectangle-path 0 (- max-y ascend underline-offset)
-                                                         max-x
-                                                         (- max-y ascend underline-offset thickness))))
-          (push overline-path paths)))
-      (update-state font state paths)
-      (cells-sweep font state
-                      (lambda (x y alpha)
-                        (when (and (<= 0 x (1- width))
-                                   (<= 0 y (1- height)))
-                          (setf alpha (min 255 (abs alpha))
-                                (aref array y x) (clamp
-                                                  (floor (+ (* (- 256 alpha) (aref array y x))
-                                                            (* alpha 255))
-                                                         256)
-                                                  0 255)))))
-      (values array 
-              min-x
-              max-y
-              width
-              height))))
+  (multiple-value-bind (dpi-x dpi-y)
+      (screen-dpi (drawable-screen drawable))
+    (multiple-value-bind (string-line-alpha-maps exists-p)
+        (gethash (cons dpi-x dpi-y) (font-string-line-alpha-maps font) (make-hash-table :test 'equal))
+      (unless exists-p
+        (setf (gethash (cons dpi-x dpi-y) (font-string-line-alpha-maps font)) string-line-alpha-maps))
+      (apply 
+       'values
+       (or (gethash string string-line-alpha-maps)
+           (setf (gethash string string-line-alpha-maps)
+                 (with-font-loader (font-loader font)
+                   (let* ((bbox (text-line-bounding-box drawable font string))
+                          (min-x (xmin bbox))
+                          (min-y (ymin bbox))
+                          (max-x (xmax bbox))
+                          (max-y (ymax bbox))
+                          (width  (- max-x min-x))
+                          (height (- max-y min-y)))
+                     (if (or (= 0 width) (= 0 height))
+                         (list nil 0 0 0 0)
+                         (let* ((units->pixels-x (font-units->pixels-x drawable font))
+                                (units->pixels-y (font-units->pixels-y drawable font))
+                                (array (make-array (list height width)
+                                                   :initial-element 0
+                                                   :element-type '(unsigned-byte 8)))
+                                (state (make-state font))
+                                (paths (paths-ttf:paths-from-string font-loader string
+                                                                    :offset (paths:make-point (- min-x)
+                                                                                              max-y)
+                                                                    :scale-x units->pixels-x
+                                                                    :scale-y (- units->pixels-y))))
+                           (when (font-underline font)
+                             (let* ((thickness (* units->pixels-y (zpb-ttf:underline-thickness font-loader)))
+                                    (underline-offset (* units->pixels-y (zpb-ttf:underline-position font-loader)))
+                                    (underline-path (paths:make-rectangle-path 0 (+ max-y (- underline-offset))
+                                                                               max-x (+ max-y (- underline-offset) thickness))))
+                               (push underline-path paths)))
+                           (when (font-strikethrough font)
+                             (let* ((thickness (* units->pixels-y (zpb-ttf:underline-thickness font-loader)))
+                                    (underline-offset (* 2 units->pixels-y (zpb-ttf:underline-position font-loader)))
+                                    (line-path (paths:make-rectangle-path 0 (+ max-y underline-offset) max-x (+ max-y underline-offset thickness))))
+                               (push line-path paths)))
+                           (when (font-overline font)
+                             (let* ((thickness (* units->pixels-y (zpb-ttf:underline-thickness font-loader)))
+                                    (underline-offset (* units->pixels-y (zpb-ttf:underline-position font-loader)))
+                                    (ascend (* units->pixels-y (zpb-ttf:ascender font-loader)))
+                                    (overline-path (paths:make-rectangle-path 0 (- max-y ascend underline-offset)
+                                                                              max-x
+                                                                              (- max-y ascend underline-offset thickness))))
+                               (push overline-path paths)))
+                           (update-state font state paths)
+                           (cells-sweep font state
+                                        (lambda (x y alpha)
+                                          (when (and (<= 0 x (1- width))
+                                                     (<= 0 y (1- height)))
+                                            (setf alpha (min 255 (abs alpha))
+                                                  (aref array y x) (clamp
+                                                                    (floor (+ (* (- 256 alpha) (aref array y x))
+                                                                              (* alpha 255))
+                                                                           256)
+                                                                    0 255)))))
+                           (list array 
+                                 min-x
+                                 max-y
+                                 width
+                                 height)))))))))))
 
 (defun update-foreground (drawable gcontext font)
   "Lazy updates foreground for drawable. @var{drawable} must be window or pixmap."
@@ -485,9 +522,9 @@ position before rendering), horizontal and vertical advances.
   "Lazy updates background for drawable. @var{drawable} must be window or pixmap."
   (let ((previous-color (xlib:gcontext-foreground gcontext))
         (color (the xlib:card32 
-                       (if (font-overwrite-gcontext font)
-                           (font-background font)
-                           (xlib:gcontext-background gcontext)))))
+                    (if (font-overwrite-gcontext font)
+                        (font-background font)
+                        (xlib:gcontext-background gcontext)))))
     (setf (xlib:gcontext-foreground gcontext) color)
     (xlib:draw-rectangle drawable gcontext x y width height t)
     (setf (xlib:gcontext-foreground gcontext) previous-color)))
