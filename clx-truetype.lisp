@@ -113,9 +113,10 @@
         (font-path (gensym)))
     `(let ((,font-path (get-font-pathname ,font)))
        (multiple-value-bind (,loader ,exists-p)
-           (gethash ,font-path *font-loader-cache* (zpb-ttf:open-font-loader ,font-path))
+           (gethash ,font-path *font-loader-cache*)
          (unless ,exists-p
-           (setf (gethash ,font-path *font-loader-cache*) ,loader))
+           (setf ,loader (setf (gethash ,font-path *font-loader-cache*)
+                               (zpb-ttf:open-font-loader ,font-path))))
          ,@body))))
 
 ;;; Screen DPI
