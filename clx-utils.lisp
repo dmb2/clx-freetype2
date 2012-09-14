@@ -6,7 +6,7 @@
   (typecase drawable
     (xlib:drawable
      (dolist (screen (xlib:display-roots (xlib:drawable-display drawable)))
-       (when (equalp (xlib:screen-root screen) (xlib:drawable-root drawable))
+       (when (xlib:drawable-equal (xlib:screen-root screen) (xlib:drawable-root drawable))
          (return screen))))
     (xlib:screen drawable)
     (t nil)))
