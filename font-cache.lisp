@@ -9,9 +9,26 @@
                                            (pathname (concatenate 'string (asdf:getenv "WINDIR") "/")))))
         "List of directories, which contain TrueType fonts.")
 
+;; family ->
+;;   subfamily -> filename
+;;   subfamily -> filename
+;;(defparameter *font-cache* (make-hash-table :test 'equal))
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (defparameter +font-cache-filename+ 
+    #.(merge-pathnames "font-cache.sexp"
+                       (merge-pathnames ".fonts/" (user-homedir-pathname)))))
+
+(eval-when (:load-toplevel :execute)
+  (defparameter *font-cache*
+    (if (fad:file-exists-p +font-cache-filename+)
+        (cl-store:restore +font-cache-filename+)
+        (make-hash-table :test 'equal))
+    "Hashmap for caching font families, subfamilies and files."))
+
 ;;(pushnew (xlib:font-path *display*) *font-dirs*)
 (defun cache-font-file (pathname)
   "Caches font file."
+  (declare (special *font-cache*))
   (handler-case 
     (zpb-ttf:with-font-loader (font pathname)
       (multiple-value-bind (hash-table exists-p)
@@ -27,13 +44,9 @@
 (defun ttf-pathname-test (pathname)
   (string-equal "ttf" (pathname-type pathname)))
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (defparameter +font-cache-filename+ 
-    #.(merge-pathnames "font-cache.sexp"
-                       (merge-pathnames ".fonts/" (user-homedir-pathname)))))
-
 (defun cache-fonts ()
   "Caches fonts from @refvar{*font-dirs*} directories."
+  (declare (special *font-cache*))
   (clrhash *font-cache*)
   (dolist (font-dir *font-dirs*)
     (fad:walk-directory font-dir #'cache-font-file :if-does-not-exist :ignore
@@ -43,6 +56,7 @@
 
 (defun get-font-families ()
   "Returns cached font families."
+  (declare (special *font-cache*))
   (let ((result (list)))
     (maphash (lambda (key value)
                (declare (ignorable value))
@@ -51,6 +65,7 @@
 
 (defun get-font-subfamilies (font-family)
   "Returns font subfamilies for current @var{font-family}. For e.g. regular, italic, bold, etc."
+  (declare (special *font-cache*))
   (let ((result (list)))
     (maphash (lambda (family value)
                (declare (ignorable family))
@@ -61,14 +76,4 @@
                  (return-from get-font-subfamilies 
                    (nreverse result)))) *font-cache*)
     (nreverse result)))
-
-;; family ->
-;;   subfamily -> filename
-;;   subfamily -> filename
-(eval-when (:load-toplevel :execute)
-  (defparameter *font-cache*
-    (if (fad:file-exists-p +font-cache-filename+)
-        (cl-store:restore +font-cache-filename+)
-        (make-hash-table :test 'equal))
-    "Hashmap for caching font families, subfamilies and files."))
 
